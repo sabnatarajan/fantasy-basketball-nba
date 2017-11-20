@@ -1,0 +1,27 @@
+body {
+  background-color: #263238;
+}
+
+nav {
+  background-color: #5d4037;
+}
+
+nav .brand-logo {
+  padding: 0px 10px;
+}
+
+nav .input-field {
+  width: 300px;
+}
+
+nav .input-field label {
+  top: -10px;
+}
+
+td, th {
+  padding: 7px 5px;
+}
+
+.plot {
+  height: 200px;
+}
