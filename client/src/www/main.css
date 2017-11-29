@@ -2,12 +2,18 @@ body {
   background-color: #263238;
 }
 
+h1, h2, h3, h4, h5, h6, label {
+  color: white !important;
+}
+
 nav {
   background-color: #5d4037;
 }
 
-nav .brand-logo {
-  padding: 0px 10px;
+@media screen and (min-width: 480px) {
+  nav .brand-logo {
+    padding: 0px 10px;
+  }
 }
 
 nav .input-field {
@@ -22,6 +28,18 @@ td, th {
   padding: 7px 5px;
 }
 
-.plot {
-  height: 200px;
+.card .card-content {
+  padding: 10px;
+}
+
+.collapsible-body {
+  padding: 10px 0px;
+}
+
+.chart-container {
+  padding: 2px !important;
+}
+
+.table {
+  font-size: 0.7em;
 }
