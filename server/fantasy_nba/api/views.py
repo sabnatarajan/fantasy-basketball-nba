@@ -16,83 +16,73 @@ def db_connect():
 def db_disconnect(conn):
     conn.close()
 
-
-class Player(APIView):
-    """
-    Player information
-    """
-
-    def get(self, req, playerID, format=None):
-        conn = db_connect()
-        query = f'SELECT * FROM Players WHERE PlayerID={playerID}'
-        row = conn.execute(query).fetchone()
-        player_data = dict((k, row[k]) for k in row.keys())
-        db_disconnect(conn)
-        return Response(player_data)
-
+def db_provider(func):
+    def func_wrapper(*args, **kwargs):
+        conn = sqlite3.connect(DATABASES['default']['NAME'])
+        conn.row_factory = sqlite3.Row
+        func_ret = func(conn, *args, **kwargs)
+        conn.close()
+        return Response(func_ret)
+    return func_wrapper
 
 @api_view(['GET'])
-def player_by_id(req, playerID, format=None):
-    conn = db_connect()
-    query = f'SELECT * FROM Players WHERE PlayerID={playerID}'
+@db_provider
+def player_by_id(conn, req, playerID, format=None):
+    query = f'SELECT * FROM Players WHERE playerID="{playerID}"'
     row = conn.execute(query).fetchone()
     player_data = dict((k, row[k]) for k in row.keys())
-    db_disconnect(conn)
-    return Response(player_data)
+    return player_data
 
 
 @api_view(['GET'])
-def all_players(req, format=None):
-    conn = db_connect()
+@db_provider
+def all_players(conn, req, format=None):
     query = f'SELECT * FROM Players'
     rows = conn.execute(query).fetchall()
     player_data = [dict((k, row[k]) for k in row.keys()) for row in rows]
-    db_disconnect(conn)
-    return Response(player_data)
-
-
-class Team(APIView):
-    """
-    Team Information
-    """
-
-    def get(self, req, teamID, format=None):
-        conn = db_connect()
-        query = f'SELECT * FROM ActiveTeams WHERE TeamID={teamID}'
-        row = conn.execute(query).fetchone()
-        team_data = dict((k, row[k]) for k in row.keys())
-        db_disconnect(conn)
-        return Response(team_data)
-
-
-class Game(APIView):
-    """
-    Game Information
-    """
-
-    def get(self, req, gameID, format=None):
-        conn = db_connect()
-        query = f'SELECT * FROM Games WHERE GameID={gameID}'
-        row = conn.execute(query).fetchone()
-        team_data = dict((k, row[k]) for k in row.keys())
-        db_disconnect(conn)
-        return Response(team_data)
+    return player_data
 
 
 @api_view(['GET'])
-def games_by_week(req, week, format=None):
-    conn = db_connect()
-    query = f'SELECT * FROM Games WHERE Week={week}'
-    rows = conn.execute(query).fetchall()
-    team_data = [dict((k, row[k]) for k in row.keys()) for row in rows]
-    db_disconnect(conn)
-    return Response(team_data)
+@db_provider
+def team_by_id(conn, req, teamID, format=None):
+    query = f'SELECT * FROM Teams WHERE teamID="{teamID.upper()}"'
+    row = conn.execute(query).fetchone()
+    team_data = dict((k, row[k]) for k in row.keys())
+    return team_data
+
 
 @api_view(['GET'])
-def games_by_teamID(req, teamID, format=None):
-    conn = db_connect()
-    query = f'SELECT * FROM Games WHERE HomeTeamID={teamID} OR AwayTeamID={teamID}'
+@db_provider
+def game_by_id(conn, req, gameID, format=None):
+    query = f'SELECT * FROM Games WHERE gameID="{gameID}"'
+    row = conn.execute(query).fetchone()
+    game_data = dict((k, row[k]) for k in row.keys())
+    return game_data
+
+
+@api_view(['GET'])
+@db_provider
+def games_by_week(conn, req, week, format=None):
+    query = f'SELECT * FROM Games WHERE week={week}'
     rows = conn.execute(query).fetchall()
-    team_data = [dict((k, row[k]) for k in row.keys()) for row in rows]
-    db_disconnect(conn)
-    return Response(team_data)
+    game_data = [dict((k, row[k]) for k in row.keys()) for row in rows]
+    return game_data
+
+
+@api_view(['GET'])
+@db_provider
+def games_by_teamID(conn, req, teamID, format=None):
+    query = f'SELECT * FROM Games WHERE homeTeamID="{teamID.upper()}" OR awayTeamID="{teamID.upper()}"'
+    rows = conn.execute(query).fetchall()
+    game_data = [dict((k, row[k]) for k in row.keys()) for row in rows]
+    return game_data
+
+
+@api_view(['GET'])
+@db_provider
+def games_by_teamID_week(conn, req, teamID, week, format=None):
+    query = f'SELECT * FROM Games WHERE week={week} AND (homeTeamID="{teamID.upper()}" OR awayTeamID="{teamID.upper()}")'
+    rows = conn.execute(query).fetchall()
+    game_data = [dict((k, row[k]) for k in row.keys()) for row in rows]
+    return game_data

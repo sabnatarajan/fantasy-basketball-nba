@@ -1,7 +1,6 @@
 import React from 'react'
 import _ from 'lodash'
 import Navbar from './components/Navbar'
-import Team from './components/Team'
 import { Button, Header, Container } from 'semantic-ui-react'
 import PlayerGrid from './components/PlayerGrid'
 import axios from 'axios'
