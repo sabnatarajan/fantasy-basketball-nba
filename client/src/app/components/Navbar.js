@@ -35,8 +35,6 @@ class Navbar extends React.Component {
             <Menu.Item as="h1">Fantasy NBA</Menu.Item>
             <Menu.Item><Link to='/weights'>Weights</Link></Menu.Item>
             <Menu.Item><Link to='/team_builder'>Team Builder</Link></Menu.Item>
-            {/* <Menu.Item as='a' floated='right'>Company</Menu.Item> */}
-            {/* <Menu.Item as='a' floated='right'>Careers</Menu.Item> */}
           </Menu>
         </Container>
       </div>

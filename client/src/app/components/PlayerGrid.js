@@ -35,17 +35,10 @@ class PlayerGrid extends React.Component {
     })
   }
 
-  handleClick = filterPosition => () => {
-    const data = this.tableData
-
-    if (filterPosition === 'ALL') {
-      this.setState({ data: data })
-    }
-    else {
-      this.setState({
-        data: _.filter(data, { 'position': filterPosition })
-      })
-    }
+  componentWillReceiveProps(nextProps) {
+    this.setState({
+      data: nextProps.data
+    })
   }
 
   handleToggle(playerID, e, data) {
@@ -58,15 +51,6 @@ class PlayerGrid extends React.Component {
 
     return (
       <div>
-        <b style={{color: 'white', marginRight: '5px'}}>Player Positions</b>
-        <Button.Group>
-          <Button toggle onClick={this.handleClick('ALL')}>All</Button>
-          <Button toggle onClick={this.handleClick('PG')}>PG</Button>
-          <Button toggle onClick={this.handleClick('PF')}>PF</Button>
-          <Button toggle onClick={this.handleClick('SG')}>SG</Button>
-          <Button toggle onClick={this.handleClick('SF')}>SF</Button>
-          <Button toggle onClick={this.handleClick('C')}>C</Button>
-        </Button.Group>
         <Table sortable celled singleLine compact size='small' textAlign='center'>
           <Table.Header>
             <Table.Row>
@@ -116,7 +100,7 @@ class PlayerGrid extends React.Component {
             {_.map(data, ({ playerID, name, position, team, starter, avMinPlayedPG, avDefScPG, avOffScPG, avCostPerDefSc, avCostPerOffSc, explosiveness,
               avScPG, gamesNextWeek, projectedSc }) => (
                 <Table.Row key={playerID}>
-                  <Table.Cell><Checkbox label="" onChange={this.handleToggle.bind(this, playerID)} /></Table.Cell>
+                  <Table.Cell><Checkbox label="" checked={this.props.checked} onChange={this.handleToggle.bind(this, playerID)} /></Table.Cell>
                   <Table.Cell textAlign='left'><Link to={'/player/' + playerID}>{name}</Link></Table.Cell>
                   <Table.Cell>{position}</Table.Cell>
                   <Table.Cell>{team}</Table.Cell>
