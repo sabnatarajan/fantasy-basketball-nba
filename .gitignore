@@ -107,3 +107,5 @@ webpack*.js
 
 # Project-specific
 data/
+
+launch.json

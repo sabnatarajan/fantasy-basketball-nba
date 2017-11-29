@@ -4,6 +4,7 @@ import Navbar from './components/Navbar'
 import Team from './components/Team'
 import { Button, Header, Container } from 'semantic-ui-react'
 import PlayerGrid from './components/PlayerGrid'
+import axios from 'axios'
 
 class TeamBuilderLayout extends React.Component {
 
@@ -19,14 +20,9 @@ class TeamBuilderLayout extends React.Component {
 
   componentWillMount() {
 
-    let initPlayers = this.getPlayerData()
-    this.setState({
-      players: initPlayers
-    })
+    // this.getOfflinePlayerData()
+    this.getOnlinePlayerData()
 
-    this.setState({
-      filteredPlayers: initPlayers
-    })
   }
 
   handleClick = filterPosition => () => {
@@ -44,29 +40,45 @@ class TeamBuilderLayout extends React.Component {
     }
   }
 
-  getPlayerData() {
-    return [
+  getOnlinePlayerData() {
+    let baseURL = "http://localhost:8000"
+
+    axios.get(baseURL + '/api/players')
+      .then(res => {
+        this.setState({
+          players: res.data,
+          filteredPlayers: res.data
+        })
+      })
+  }
+
+  getOfflinePlayerData() {
+    let offline_players = [
       {
-        playerID: "jamesle01", name: 'LeBron James', position: "PG", team: "CLE", starter: 1, avMinPlayedPG: "38:44",
+        playerID: "jamesle01", name: 'LeBron James', position: "PG", team: "CLE", starter: 1, avMPG: "38:44",
         avDefScPG: 80, avOffScPG: 100, avCostPerDefSc: 403, avCostPerOffSc: 251, explosiveness: 90,
-        avScPG: 76, gamesNextWeek: 2, projectedSc: 82, selected: false
+        avScPG: 76, gamesNextWeek: 2, projectedSc: 82
       },
       {
-        playerID: "duncanti01", name: 'Tim Duncan', position: "PF", team: "SAS", starter: 1, avMinPlayedPG: "38:44",
+        playerID: "duncanti01", name: 'Tim Duncan', position: "PF", team: "SAS", starter: 1, avMPG: "38:44",
         avDefScPG: 81, avOffScPG: 10, avCostPerDefSc: 400, avCostPerOffSc: 210, explosiveness: 90,
-        avScPG: 76, gamesNextWeek: 2, projectedSc: 82, selected: false
+        avScPG: 76, gamesNextWeek: 2, projectedSc: 82
       },
       {
-        playerID: "bryantko01", name: 'Kobe Bryant', position: "SG", team: "LAL", starter: 1, avMinPlayedPG: "38:44",
+        playerID: "bryantko01", name: 'Kobe Bryant', position: "SG", team: "LAL", starter: 1, avMPG: "38:44",
         avDefScPG: 82, avOffScPG: 103, avCostPerDefSc: 380, avCostPerOffSc: 214, explosiveness: 90,
-        avScPG: 76, gamesNextWeek: 2, projectedSc: 82, selected: false
+        avScPG: 76, gamesNextWeek: 2, projectedSc: 82
       },
       {
-        playerID: "duranke01", name: 'Kevin Durant', position: "SF", team: "CLE", starter: 1, avMinPlayedPG: "38:44",
+        playerID: "duranke01", name: 'Kevin Durant', position: "SF", team: "CLE", starter: 1, avMPG: "38:44",
         avDefScPG: 83, avOffScPG: 113, avCostPerDefSc: 401, avCostPerOffSc: 215, explosiveness: 90,
-        avScPG: 76, gamesNextWeek: 2, projectedSc: 82, selected: false
+        avScPG: 76, gamesNextWeek: 2, projectedSc: 82
       },
     ]
+    this.setState({
+      players: offline_players,
+      filteredPlayers: offline_players
+    })
   }
 
   updateTeam = (playerID, addPlayer) => {
@@ -106,7 +118,7 @@ class TeamBuilderLayout extends React.Component {
               <Button toggle onClick={this.handleClick('C')}>C</Button>
             </Button.Group>
           </div>
-          <PlayerGrid data={this.state.filteredPlayers} updateTeamCallback={this.updateTeam} checked={false} />
+          <PlayerGrid data={this.state.filteredPlayers} updateTeamCallback={this.updateTeam} checked={false} paginateEntries={2}/>
         </Container>
       </div>
     )
