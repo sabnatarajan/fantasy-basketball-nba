@@ -1,0 +1,10 @@
+Django==1.11.7
+django-cors-headers==2.1.0
+djangorestframework==3.7.3
+gunicorn==19.7.1
+numpy==1.13.3
+pandas==0.21.0
+python-dateutil==2.6.1
+pytz==2017.3
+six==1.11.0
+whitenoise==3.3.1
