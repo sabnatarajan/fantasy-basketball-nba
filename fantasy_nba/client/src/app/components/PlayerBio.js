@@ -30,7 +30,7 @@ class PlayerBio extends React.Component {
     this.setState({
       player: {
         name: "LeBron James",
-        imageURL: "/jamesle01.jpg",
+        imageURL: "https://d2cwpp38twqe55.cloudfront.net/req/201711161/images/players/jamesle01.jpg",
         dob: "31st Feb 2018",
         height: "6-8",
         weight: 108,
