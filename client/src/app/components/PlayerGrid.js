@@ -1,19 +1,18 @@
 import React, { ParamHTMLAttributes } from 'react'
 import _ from 'lodash'
-import { Button, Checkbox, Popup, Table } from 'semantic-ui-react'
+import { Button, Checkbox, Label, Popup, Table } from 'semantic-ui-react'
 import { Link } from 'react-router-dom'
 
 class PlayerGrid extends React.Component {
   constructor(props, context) {
     super(props, context)
-    this.tableData = this.props.data
-  }
 
-  state = {
-    column: null,
-    data: this.props.data,
-    direction: null,
-    filterPosition: null
+    this.state = {
+      column: null,
+      data: props.data,
+      direction: null,
+      filterPosition: null
+    }
   }
 
   handleSort = clickedColumn => () => {
@@ -47,13 +46,16 @@ class PlayerGrid extends React.Component {
   }
 
   totals() {
-    if (this.props.checked == false) {
+
+    if (!this.props.checked) {
       return null
     }
 
     if (!this.state.data) {
       return null
     }
+
+    const {data} = this.state
 
     let totMPG = _.sumBy(this.state.data, function (obj) { return obj.avMPG })
     let totDefSc = _.sumBy(this.state.data, function (obj) { return obj.avDefScPG })
@@ -86,6 +88,7 @@ class PlayerGrid extends React.Component {
   }
 
   averages() {
+
     if (this.props.checked == false) {
       return null
     }
@@ -94,15 +97,17 @@ class PlayerGrid extends React.Component {
       return null
     }
 
-    let avgMPG = this.state.data ? 0 : _.round(_.meanBy(this.state.data, function (obj) { return obj.avMPG }), 2)
-    let avgDefSc = this.state.data ? 0 : _.round(_.meanBy(this.state.data, function (obj) { return obj.avDefScPG }), 2)
-    let avgOffSc = this.state.data ? 0 : _.round(_.meanBy(this.state.data, function (obj) { return obj.avOffScPG }), 2)
-    let avgCostPerDefSc = this.state.data ? 0 : _.round(_.meanBy(this.state.data, function (obj) { return obj.avCostPerDefSc }), 2)
-    let avgCostPerOffSc = this.state.data ? 0 : _.round(_.meanBy(this.state.data, function (obj) { return obj.avCostPerOffSc }), 2)
-    let avgExplosiveness = this.state.data ? 0 : _.round(_.meanBy(this.state.data, function (obj) { return obj.explosiveness }), 2)
-    let avgScPG = this.state.data ? 0 : _.round(_.meanBy(this.state.data, function (obj) { return obj.avScPG }), 2)
-    let avgGamesNextWeek = this.state.data ? 0 : _.round(_.meanBy(this.state.data, function (obj) { return obj.gamesNextWeek }), 2)
-    let avgProjectedSc = this.state.data ? 0 : _.round(_.meanBy(this.state.data, function (obj) { return obj.projectedSc }), 2)
+    const { data } = this.state    
+
+    let avgMPG = _.round(_.meanBy(data, function (obj) { return obj.avMPG }), 2)
+    let avgDefSc = _.round(_.meanBy(data, function (obj) { return obj.avDefScPG }), 2)
+    let avgOffSc = _.round(_.meanBy(data, function (obj) { return obj.avOffScPG }), 2)
+    let avgCostPerDefSc = _.round(_.meanBy(data, function (obj) { return obj.avCostPerDefSc }), 2)
+    let avgCostPerOffSc = _.round(_.meanBy(data, function (obj) { return obj.avCostPerOffSc }), 2)
+    let avgExplosiveness = _.round(_.meanBy(data, function (obj) { return obj.explosiveness }), 2)
+    let avgScPG = _.round(_.meanBy(data, function (obj) { return obj.avScPG }), 2)
+    let avgGamesNextWeek = _.round(_.meanBy(data, function (obj) { return obj.gamesNextWeek }), 2)
+    let avgProjectedSc = _.round(_.meanBy(data, function (obj) { return obj.projectedSc }), 2)
 
     return (
       <Table.Row style={{ fontWeight: '700' }}>
@@ -135,7 +140,7 @@ class PlayerGrid extends React.Component {
     return (
       <div>
         <Button.Group floated='right'>
-          {_.map(pages, ({i}) => { <Button>{i}</Button> })}
+          {_.map(pages, ({ i }) => { <Button>{i}</Button> })}
           <Button>One</Button>
           <Button>Two</Button>
           <Button>Three</Button>
@@ -146,6 +151,11 @@ class PlayerGrid extends React.Component {
 
   render() {
     const { column, data, direction, filterPosition } = this.state
+
+    if (!data || data.length == 0) { // Do not display an empty team table
+      if (this.props.checked) // Only apply to the master player list, not team list
+        return <Label color="red" >You haven't chosen any players yet</Label>
+    }
 
     return (
       <div>

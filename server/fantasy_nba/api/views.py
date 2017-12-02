@@ -16,6 +16,7 @@ def db_connect():
 def db_disconnect(conn):
     conn.close()
 
+
 def db_provider(func):
     def func_wrapper(*args, **kwargs):
         conn = sqlite3.connect(DATABASES['default']['NAME'])
@@ -24,6 +25,7 @@ def db_provider(func):
         conn.close()
         return Response(func_ret)
     return func_wrapper
+
 
 @api_view(['GET'])
 @db_provider

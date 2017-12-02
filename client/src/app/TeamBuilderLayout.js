@@ -11,16 +11,23 @@ class TeamBuilderLayout extends React.Component {
     super(props, context)
 
     this.state = {
-      team: null,
-      players: null,
-      filteredPlayers: null
+      team: props.team,
+      players: props.players,
+      filteredPlayers: _.difference(props.players, props.team)
     }
+  }
+
+  MAX_ROSTER_SIZE = 100
+
+  setStateOnParent(nextState) {
+    this.props.setStateCallback(nextState)
   }
 
   componentWillMount() {
 
     // this.getOfflinePlayerData()
-    this.getOnlinePlayerData()
+    if (!this.state.players)
+      this.getOnlinePlayerData()
 
   }
 
@@ -30,12 +37,12 @@ class TeamBuilderLayout extends React.Component {
     if (filterPosition === 'ALL') {
       this.setState({
         filteredPlayers: _.difference(this.state.players, this.state.team)
-      })
+      }, this.setStateOnParent(this.state))
     }
     else {
       this.setState({
         filteredPlayers: _.filter(availablePlayers, { 'position': filterPosition })
-      })
+      }, this.setStateOnParent(this.state))
     }
   }
 
@@ -81,6 +88,12 @@ class TeamBuilderLayout extends React.Component {
   }
 
   updateTeam = (playerID, addPlayer) => {
+    if (this.state.team) {
+      if (addPlayer && this.state.team.length >= this.MAX_ROSTER_SIZE) {
+        alert("You have reached the limit on roster size.")
+        return
+      }
+    }
     let player = _.filter(this.state.players, { 'playerID': playerID })
     if (addPlayer) {
       this.setState(
@@ -88,19 +101,20 @@ class TeamBuilderLayout extends React.Component {
           team: _.union(this.state.team, player),
           filteredPlayers: _.difference(this.state.filteredPlayers, player)
         }
-      )
+        , () => this.props.setStateCallback(this.state))
     } else {
       this.setState({
         team: _.difference(this.state.team, player),
         filteredPlayers: _.union(this.state.filteredPlayers, player)
-      })
+      },
+        () => this.props.setStateCallback(this.state))
     }
   }
 
   render() {
     return (
       <div>
-        <Navbar title="Fantasy NBA" />
+        <Navbar title="Fantasy NBA" {...this.props} />
         <Container>
           <Header as='h3'>My Team</Header>
           <PlayerGrid data={this.state.team} updateTeamCallback={this.updateTeam} checked={true} />
@@ -117,7 +131,7 @@ class TeamBuilderLayout extends React.Component {
               <Button toggle onClick={this.handleClick('C')}>C</Button>
             </Button.Group>
           </div>
-          <PlayerGrid data={this.state.filteredPlayers} updateTeamCallback={this.updateTeam} checked={false} paginateEntries={2}/>
+          <PlayerGrid data={this.state.filteredPlayers} updateTeamCallback={this.updateTeam} checked={false} paginateEntries={2} />
         </Container>
       </div>
     )
