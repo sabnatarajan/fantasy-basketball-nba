@@ -24,7 +24,9 @@ SECRET_KEY = 'rfma9gl!ms^6xra%3jfe7n^#rx=5#%43wq2z0-4yxetes)_v$r'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    "team11-fantasy-nba.herokuapp.com"
+]
 
 
 # Application definition
