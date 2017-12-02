@@ -1,1 +1,1 @@
-web: gunicorn fantasy-nba.wsgi --log-file -
+web: gunicorn fantasy_nba.wsgi --log-file -
