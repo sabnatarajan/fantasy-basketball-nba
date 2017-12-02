@@ -1,1 +1,1 @@
-web: gunicorn fantasy_nba/fantasy_nba.wsgi --log-file -
+web: cd fantasy_nba/ && gunicorn fantasy_nba.wsgi --log-file -
