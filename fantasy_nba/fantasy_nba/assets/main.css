@@ -24,22 +24,58 @@ nav .input-field label {
   top: -10px;
 }
 
-td, th {
-  padding: 7px 5px;
-}
-
-.card .card-content {
-  padding: 10px;
-}
-
 .collapsible-body {
   padding: 10px 0px;
 }
 
-.chart-container {
-  padding: 2px !important;
-}
-
 .table {
   font-size: 0.7em;
+}
+
+video { 
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  min-width: 100%;
+  min-height: 100%;
+  width: auto;
+  height: auto;
+  z-index: -100;
+  transform: translateX(-50%) translateY(-50%);
+  background: url('/poster.png') no-repeat;
+  background-size: cover;
+  transition: 1s opacity;
+}
+
+@media screen and (max-width: 500px) { 
+div{width:70%;} 
+}
+@media screen and (max-device-width: 800px) {
+html { background: url('/poster.png') #000 no-repeat center center fixed; }
+#bgvid { display: none; }
+}
+
+#weights {
+  position: absolute;
+  left: 15%;
+  width: 70%;
+  margin: 20% auto;
+}
+
+.ui.inverted.segment {
+  background: #5b5f63a8;
+}
+
+#title {
+  position: absolute;
+  width: 40%;
+  left: 30%;
+  margin: 10% auto;
+  color: white;
+  font-size: 4em;
+  font-weight: 700;
+  text-align: center;
+  background-color: #5b5f63a8;
+  padding: 30px 25px;
+  border-radius: 0.3rem;
 }

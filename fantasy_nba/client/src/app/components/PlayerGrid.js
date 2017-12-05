@@ -6,13 +6,12 @@ import { Link } from 'react-router-dom'
 class PlayerGrid extends React.Component {
   constructor(props, context) {
     super(props, context)
-
-    this.state = {
-      column: null,
-      data: props.data,
-      direction: null,
-      filterPosition: null
-    }
+  }
+  state = {
+    column: null,
+    data: null,
+    direction: null,
+    filterPosition: null
   }
 
   handleSort = clickedColumn => () => {
@@ -34,6 +33,12 @@ class PlayerGrid extends React.Component {
     })
   }
 
+  componentWillMount() {
+    this.setState({
+      data: this.props.data,
+    })
+  }
+
   componentWillReceiveProps(nextProps) {
     this.setState({
       data: nextProps.data
@@ -43,90 +48,6 @@ class PlayerGrid extends React.Component {
   handleToggle(playerID, e, data) {
     let addPlayer = data.checked
     this.props.updateTeamCallback(playerID, addPlayer)
-  }
-
-  totals() {
-
-    if (!this.props.checked) {
-      return null
-    }
-
-    if (!this.state.data) {
-      return null
-    }
-
-    const {data} = this.state
-
-    let totMPG = _.sumBy(this.state.data, function (obj) { return obj.avMPG })
-    let totDefSc = _.sumBy(this.state.data, function (obj) { return obj.avDefScPG })
-    let totOffSc = _.sumBy(this.state.data, function (obj) { return obj.avOffScPG })
-    let totCostPerDefSc = _.sumBy(this.state.data, function (obj) { return obj.avCostPerDefSc })
-    let totCostPerOffSc = _.sumBy(this.state.data, function (obj) { return obj.avCostPerOffSc })
-    let totExplosiveness = _.sumBy(this.state.data, function (obj) { return obj.explosiveness })
-    let totScPG = _.sumBy(this.state.data, function (obj) { return obj.avScPG })
-    let totGamesNextWeek = _.sumBy(this.state.data, function (obj) { return obj.gamesNextWeek })
-    let totProjectedSc = _.sumBy(this.state.data, function (obj) { return obj.projectedSc })
-
-    return (
-      <Table.Row style={{ fontWeight: '700' }}>
-        <Table.Cell></Table.Cell>
-        <Table.Cell>TOTALS</Table.Cell>
-        <Table.Cell></Table.Cell>
-        <Table.Cell></Table.Cell>
-        <Table.Cell></Table.Cell>
-        <Table.Cell>{totMPG}</Table.Cell>
-        <Table.Cell>{totDefSc}</Table.Cell>
-        <Table.Cell>{totOffSc}</Table.Cell>
-        <Table.Cell>{totCostPerDefSc}</Table.Cell>
-        <Table.Cell>{totCostPerOffSc}</Table.Cell>
-        <Table.Cell>{totExplosiveness}</Table.Cell>
-        <Table.Cell>{totScPG}</Table.Cell>
-        <Table.Cell>{totGamesNextWeek}</Table.Cell>
-        <Table.Cell>{totProjectedSc}</Table.Cell>
-      </Table.Row>
-    )
-  }
-
-  averages() {
-
-    if (this.props.checked == false) {
-      return null
-    }
-
-    if (!this.state.data) {
-      return null
-    }
-
-    const { data } = this.state    
-
-    let avgMPG = _.round(_.meanBy(data, function (obj) { return obj.avMPG }), 2)
-    let avgDefSc = _.round(_.meanBy(data, function (obj) { return obj.avDefScPG }), 2)
-    let avgOffSc = _.round(_.meanBy(data, function (obj) { return obj.avOffScPG }), 2)
-    let avgCostPerDefSc = _.round(_.meanBy(data, function (obj) { return obj.avCostPerDefSc }), 2)
-    let avgCostPerOffSc = _.round(_.meanBy(data, function (obj) { return obj.avCostPerOffSc }), 2)
-    let avgExplosiveness = _.round(_.meanBy(data, function (obj) { return obj.explosiveness }), 2)
-    let avgScPG = _.round(_.meanBy(data, function (obj) { return obj.avScPG }), 2)
-    let avgGamesNextWeek = _.round(_.meanBy(data, function (obj) { return obj.gamesNextWeek }), 2)
-    let avgProjectedSc = _.round(_.meanBy(data, function (obj) { return obj.projectedSc }), 2)
-
-    return (
-      <Table.Row style={{ fontWeight: '700' }}>
-        <Table.Cell></Table.Cell>
-        <Table.Cell>AVERAGES</Table.Cell>
-        <Table.Cell></Table.Cell>
-        <Table.Cell></Table.Cell>
-        <Table.Cell></Table.Cell>
-        <Table.Cell>{avgMPG}</Table.Cell>
-        <Table.Cell>{avgDefSc}</Table.Cell>
-        <Table.Cell>{avgOffSc}</Table.Cell>
-        <Table.Cell>{avgCostPerDefSc}</Table.Cell>
-        <Table.Cell>{avgCostPerOffSc}</Table.Cell>
-        <Table.Cell>{avgExplosiveness}</Table.Cell>
-        <Table.Cell>{avgScPG}</Table.Cell>
-        <Table.Cell>{avgGamesNextWeek}</Table.Cell>
-        <Table.Cell>{avgProjectedSc}</Table.Cell>
-      </Table.Row>
-    )
   }
 
   paginator() {
@@ -149,6 +70,29 @@ class PlayerGrid extends React.Component {
     )
   }
 
+  getTableRow(colID, colHeader, colTooltip) {
+    const { column, direction } = this.state
+    return (
+      <Popup trigger={
+        <Table.HeaderCell sorted={column === colID ? direction : null} onClick={this.handleSort(colID)}>
+          {colHeader}
+        </Table.HeaderCell>}
+        content={colTooltip} />
+    )
+  }
+
+  getDefFPts(avREBDef, avBLK, avSTL) {
+    return 0
+  }
+
+  getOffFPts(avPTS, avFTA, avFTM, avFGA, avFGM, avPT3M, avTOV, avAST, avREBOff) {
+    return 0
+  }
+
+  getProjSc() {
+    return 0
+  }
+
   render() {
     const { column, data, direction, filterPosition } = this.state
 
@@ -159,73 +103,94 @@ class PlayerGrid extends React.Component {
 
     return (
       <div>
-        <Table sortable celled singleLine compact size='small' textAlign='center'>
+        <Table sortable celled compact size='small' textAlign='center'>
           <Table.Header>
             <Table.Row>
               <Popup trigger={<Table.HeaderCell></Table.HeaderCell>} content='Click to select player' />
-              <Popup trigger={<Table.HeaderCell sorted={column === 'name' ? direction : null} onClick={this.handleSort('name')}>
-                Name
-            </Table.HeaderCell>} content="Name" />
-              <Popup trigger={<Table.HeaderCell sorted={column === 'position' ? direction : null} onClick={this.handleSort('position')}>
-                Pos
-            </Table.HeaderCell>} content="Position" />
-              <Popup trigger={<Table.HeaderCell sorted={column === 'team' ? direction : null} onClick={this.handleSort('team')}>
-                Team
-            </Table.HeaderCell>} content='Team' />
-              <Popup trigger={<Table.HeaderCell sorted={column === 'starter' ? direction : null} onClick={this.handleSort('starter')}>
-                Start %
-            </Table.HeaderCell>} content='% games started' />
-              <Popup trigger={<Table.HeaderCell sorted={column === 'avMPG' ? direction : null} onClick={this.handleSort('avMPG')}>
-                MPG
-            </Table.HeaderCell>} content='Average minutes per game' />
-              <Popup trigger={<Table.HeaderCell sorted={column === 'avDefSc' ? direction : null} onClick={this.handleSort('avDefSc')}>
-                DefSc
-            </Table.HeaderCell>} content='Average defensive fantasy score per game' />
-              <Popup trigger={<Table.HeaderCell sorted={column === 'avOffSc' ? direction : null} onClick={this.handleSort('avOffSc')}>
-                OffSc.
-            </Table.HeaderCell>} content='Average offensive fantasy score per game' />
-              <Popup trigger={<Table.HeaderCell sorted={column === 'avCostPerDefSc' ? direction : null} onClick={this.handleSort('avCostPerDefSc')}>
-                $DefSc
-            </Table.HeaderCell>} content='Average cost per defensive score' />
-              <Popup trigger={<Table.HeaderCell sorted={column === 'avCostPerOffSc' ? direction : null} onClick={this.handleSort('avCostPerOffSc')}>
-                $OffSc
-            </Table.HeaderCell>} content='Average cost per offensive score' />
-              <Popup trigger={<Table.HeaderCell sorted={column === 'explosiveness' ? direction : null} onClick={this.handleSort('explosiveness')}>
-                XPL
-            </Table.HeaderCell>} content='Explosiveness' />
-              <Popup trigger={<Table.HeaderCell sorted={column === 'avScPG' ? direction : null} onClick={this.handleSort('avScPG')}>
-                Score
-            </Table.HeaderCell>} content='Average fantasy score per game' />
-              <Popup trigger={<Table.HeaderCell sorted={column === 'gamesNextWeek' ? direction : null} onClick={this.handleSort('gamesNextWeek')}>
-                #GNW
-            </Table.HeaderCell>} content='Number of games next week' />
-              <Popup trigger={<Table.HeaderCell sorted={column === 'projScNextWeek' ? direction : null} onClick={this.handleSort('projScNextWeek')}>
-                Proj Sc.
-            </Table.HeaderCell>} content='Projected fantasy score next week' />
+              {this.getTableRow('name', 'Name', 'Name')}
+              {this.getTableRow('position', 'POS', 'Position')}
+              {this.getTableRow('currTeamID', 'Team', 'Team')}
+              {this.getTableRow('cost', 'Cost ($)', 'Fantasy League Cost')}
+              {this.getTableRow('avFPtsPer$', 'FPts PG/$', 'Average Fantasy Pts. per $')}
+              {this.getTableRow('avDefFPtsPer$', 'Def FPts PG/$', 'Average Defensive Fantasy Pts. per $')}
+              {this.getTableRow('avOffFPtsPer$', 'Off FPts PG/$', 'Average Offensive Fantasy Pts. per $')}
+              {this.getTableRow('projFPts', 'Proj FPts', 'Projected Fantasy Points for Next Week')}
+              {this.getTableRow('gNxtWk', 'Games NW', '# Games next week')}
+              {this.getTableRow('avFPts', 'FPts', 'Average Fantasy Points per Game')}
+              {this.getTableRow('avDefFPts', 'Def FPts', 'Average Defensive Fantasy Points per Game')}
+              {this.getTableRow('avOffFPts', 'Off FPts', 'Average Offensive Fantasy Points per Game')}
             </Table.Row>
           </Table.Header>
           <Table.Body>
-            {_.map(data, ({ playerID, name, position, team, starter, avMPG, avDefScPG, avOffScPG, avCostPerDefSc, avCostPerOffSc, explosiveness,
-              avScPG, gamesNextWeek, projectedSc }) => (
+            {_.map(data, (
+              { playerID, name, position, currTeamID, costYAH, costESPN,
+                avPTS, avREBOff, avREBDef, avREBTot, avFGA, avFGM, avSTL,
+                avBLK, avAST, avTOV, avFTA, avFTM, avPT3A, avPT3M, gPlayed,
+                gamesNxtWk, avSecsPlayed, probPlay }, idx) => {
+
+              const weights = this.props.weights
+              let avDefFPts = _.round(weights.REBTot * avREBDef + weights.BLK * avBLK + weights.STL * avSTL, 2)
+              let avOffFPts = _.round(
+                weights.PTS * avPTS
+                + weights.REBTot * avREBOff
+                + weights.STL * avAST
+                + weights.TOV * avTOV
+                + weights.PT3M * avPT3M
+                + weights.FTA * avFTA
+                + weights.FTM * avFTM
+                + weights.FGA * avFGA
+                + weights.FGM * avFGM, 2)
+
+              let avFPts = _.round(
+                weights.PTS * avPTS
+                + weights.REBTot * avREBOff
+                + weights.STL * avAST
+                + weights.TOV * avTOV
+                + weights.PT3M * avPT3M
+                + weights.FTA * avFTA
+                + weights.FTM * avFTM
+                + weights.FGA * avFGA
+                + weights.FGM * avFGM
+                + weights.REBTot * avREBDef
+                + weights.BLK * avBLK
+                + weights.STL * avSTL, 2)
+
+              let projFPts = Math.round(gamesNxtWk * probPlay * avFPts)
+
+              let cost = costYAH
+              let avFPtsPer$ = cost == 0 ? "-" : _.round(avFPts / cost, 2)
+              let avDefFPtsPer$ = cost == 0 ? "-" : _.round(avDefFPts / cost, 2)
+              let avOffFPtsPer$ = cost == 0 ? "-" : _.round(avOffFPts / cost, 2)
+              let avMPG = Math.floor(avSecsPlayed / 60) + ":" + Math.floor(avSecsPlayed % 60)
+
+              this.state.data[idx].avFPts = avFPts
+              this.state.data[idx].avDefFPts = avDefFPts
+              this.state.data[idx].avOffFPts = avOffFPts
+              this.state.data[idx].avFPtsPer$ = avFPtsPer$
+              this.state.data[idx].avDefFPtsPer$ = avDefFPtsPer$
+              this.state.data[idx].avOffFPtsPer$ = avOffFPtsPer$
+              this.state.data[idx].projFPts = projFPts
+              this.state.data[idx].cost = cost
+
+              return (
                 <Table.Row key={playerID}>
                   <Table.Cell><Checkbox label="" checked={this.props.checked} onChange={this.handleToggle.bind(this, playerID)} /></Table.Cell>
                   <Table.Cell textAlign='left'><Link to={'/player/' + playerID}>{name}</Link></Table.Cell>
                   <Table.Cell>{position}</Table.Cell>
-                  <Table.Cell>{team}</Table.Cell>
-                  <Table.Cell>{starter}</Table.Cell>
-                  <Table.Cell>{avMPG}</Table.Cell>
-                  <Table.Cell>{avDefScPG}</Table.Cell>
-                  <Table.Cell>{avOffScPG}</Table.Cell>
-                  <Table.Cell>{avCostPerDefSc}</Table.Cell>
-                  <Table.Cell>{avCostPerOffSc}</Table.Cell>
-                  <Table.Cell>{explosiveness}</Table.Cell>
-                  <Table.Cell>{avScPG}</Table.Cell>
-                  <Table.Cell>{gamesNextWeek}</Table.Cell>
-                  <Table.Cell>{projectedSc}</Table.Cell>
+                  <Table.Cell>{currTeamID}</Table.Cell>
+                  <Table.Cell>{cost == 0 ? "Not Drafted" : cost}</Table.Cell>
+                  <Table.Cell>{avFPtsPer$}</Table.Cell>
+                  <Table.Cell>{avDefFPtsPer$}</Table.Cell>
+                  <Table.Cell>{avOffFPtsPer$}</Table.Cell>
+                  <Table.Cell>{projFPts}</Table.Cell>
+                  <Table.Cell>{gamesNxtWk}</Table.Cell>
+                  <Table.Cell>{avFPts}</Table.Cell>
+                  <Table.Cell>{avDefFPts}</Table.Cell>
+                  <Table.Cell>{avOffFPts}</Table.Cell>
                 </Table.Row>
-              ))}
-            {this.totals()}
-            {this.averages()}
+              )
+            }
+            )}
           </Table.Body>
         </Table>
         {this.paginator()}

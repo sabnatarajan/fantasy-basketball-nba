@@ -8,22 +8,69 @@ class PlayerBio extends React.Component {
     super(props, context);
 
     this.state = {
-      player: null
+      player: null,
+      playerTeam: null,
+      playerStats: null
     }
   }
 
   componentWillMount() {
-    // this.getPlayer(this.props.playerID)
-    this.getPlayerDetails(this.props.playerID)
+
+    this.getPlayer(this.props.playerID)
+    // this.getPlayerDetails(this.props.playerID)
+  }
+
+  updatePlayerStats() {
+    this.setState({
+      playerStats: {
+        stats: {
+          season: {
+            pts: 23,
+            reb: 21,
+            ast: 24,
+            stl: 21,
+            blk: 28,
+            fgpct: 28,
+            ftpct: 28,
+            pt3pct: 28,
+            tov: 28,
+          },
+          last5: {
+            pts: 23,
+            reb: 21,
+            ast: 24,
+            stl: 21,
+            blk: 28,
+            fgpct: 28,
+            ftpct: 28,
+            pt3pct: 28,
+            tov: 28,
+          }
+        }
+      }
+    })
+  }
+
+  getPlayerTeam(teamID) {
+    const baseURL = process.env ? "http://localhost:8000" : ""
+    axios.get(baseURL + "/api/team/" + teamID)
+      .then(res => {
+        this.setState({
+          playerTeam: res.data
+        }, () => this.updatePlayerStats())
+      })
   }
 
   getPlayer(playerID) {
-    axios.get("localhost:8000/api/player/" + playerID)
+    const baseURL = process.env ? "http://localhost:8000" : ""
+    let player = null
+    axios.get(baseURL + "/api/player/" + playerID)
       .then(res => {
         this.setState({
           player: res.data
-        })
+        }, () => this.getPlayerTeam(this.state.player.currTeamID))
       })
+    return player
   }
 
   getPlayerDetails(playerID) {
@@ -73,26 +120,28 @@ class PlayerBio extends React.Component {
   }
 
   render() {
-    const { player } = this.state
+    const { player, playerTeam, playerStats } = this.state
+    // return ""
     return (
       <div id='player-bio'>
         <Card.Group itemsPerRow={2}>
           <PlayerInfo player={player} />
-          <PlayerTeamInfo player={player} />
+          <PlayerTeamInfo player={player} team={playerTeam} />
         </Card.Group>
-        <PlayerStats player={player} />
+        <PlayerStats {...playerStats} />
       </div>
     )
   }
 }
 
 const PlayerInfo = ({ player }) => {
-  return (
+  return !player ? "" : (
     <Card>
       <Card.Content>
         <Image floated="left" width={120} src={player.imageURL} />
         <Card.Header>{player.name}</Card.Header>
         <br />
+        <strong>Position:</strong> {player.position}<br />
         <strong>Date of Birth:</strong> {player.dob}<br />
         <strong>Height:</strong> {player.height}<br />
         <strong>Weight:</strong> {player.weight} lbs.<br />
@@ -103,31 +152,30 @@ const PlayerInfo = ({ player }) => {
   )
 }
 
-const PlayerTeamInfo = ({ player }) => {
-  return (
+const PlayerTeamInfo = ({ player, team }) => {
+  return !player || !team ? "" : (
     <Card>
       <Card.Content>
-        <Image floated="left" width={120} src={player.team.imageURL} />
-        <Card.Header>{player.team.name}</Card.Header>
+        <Image floated="left" width={120} src={team.teamImageURL} />
+        <Card.Header>{team.teamName}</Card.Header>
         <br />
         <strong>Draft:</strong> {player.draft}<br />
         <strong>NBA Debut:</strong> {player.debut}<br />
         <strong>Experience:</strong> {player.experience}<br />
-        <strong>Position:</strong> {player.position}<br />
       </Card.Content>
     </Card>
   )
 }
 
-const PlayerStats = ({ player }) => {
-  return (
+const PlayerStats = ({ stats }) => {
+  return !stats ? "" : (
     <Segment>
       <Header>Player Stats</Header>
       <Table definition striped celled compact>
         <Table.Header>
           <Table.Row>
             <Table.HeaderCell></Table.HeaderCell>
-            {_.map(player.stats.season, (val, key) => (
+            {_.map(stats.season, (val, key) => (
               <Table.HeaderCell key={key}>{key.toUpperCase().replace("PCT", "%").replace("PT3", "3PT")}</Table.HeaderCell>
             ))}
           </Table.Row>
@@ -135,13 +183,13 @@ const PlayerStats = ({ player }) => {
         <Table.Body>
           <Table.Row>
             <Table.Cell>Current Season</Table.Cell>
-            {_.map(player.stats.season, (val, key) => (
+            {_.map(stats.season, (val, key) => (
               <Table.Cell key={key + "-" + val}>{val}</Table.Cell>
             ))}
           </Table.Row>
           <Table.Row>
             <Table.Cell>Last 5 Games</Table.Cell>
-            {_.map(player.stats.last5, (val, key) => (
+            {_.map(stats.last5, (val, key) => (
               <Table.Cell key={key + "-" + val}>{val}</Table.Cell>
             ))}
           </Table.Row>

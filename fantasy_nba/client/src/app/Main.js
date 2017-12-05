@@ -13,7 +13,20 @@ class Main extends React.Component {
     super(props, context)
 
     this.state = {
-      weights: null,
+      weights: {
+        PTS: 0.5,
+        FGA: -0.45,
+        FGM: 1,
+        PT3M: 3,
+        FTA: -0.75,
+        FTM: 1,
+        REBTot: 1.5,
+        STL: 3,
+        BLK: 3,
+        AST: 2,
+        TOV: -2,
+      },
+      league: null,
       team: null,
       players: null,
       setStateCallback: this.setStateFromChild
@@ -28,7 +41,7 @@ class Main extends React.Component {
     return (
       <Router>
         <Switch>
-          <Route exact path="/" component={HomeLayout} />
+          <Route exact path="/" render={(props) => (<HomeLayout {...this.state} />)} />
           <Route path="/player/:playerID" render={(props) => (<PlayerLayout playerID={props.match.params.playerID} />)} />
           <Route path="/team_builder/" render={(props) => (<TeamBuilderLayout {...this.state} />)} />
           <Route component={Err404Layout} />
