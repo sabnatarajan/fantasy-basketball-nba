@@ -52,7 +52,7 @@ class PlayerBio extends React.Component {
   }
 
   getPlayerTeam(teamID) {
-    const baseURL = process.env ? "http://localhost:8000" : ""
+    const baseURL = ""
     axios.get(baseURL + "/api/team/" + teamID)
       .then(res => {
         this.setState({
@@ -62,7 +62,7 @@ class PlayerBio extends React.Component {
   }
 
   getPlayer(playerID) {
-    const baseURL = process.env ? "http://localhost:8000" : ""
+    const baseURL = ""
     let player = null
     axios.get(baseURL + "/api/player/" + playerID)
       .then(res => {

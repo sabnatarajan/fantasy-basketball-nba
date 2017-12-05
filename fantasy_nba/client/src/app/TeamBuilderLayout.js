@@ -51,7 +51,7 @@ class TeamBuilderLayout extends React.Component {
   }
 
   getOnlinePlayerData() {
-    let baseURL = process.env ? "http://localhost:8000" : ""
+    let baseURL = ""
 
     axios.get(baseURL + '/api/players')
       .then(res => {
