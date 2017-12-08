@@ -39,7 +39,7 @@ def player_by_id(conn, req, playerID, format=None):
 @api_view(['GET'])
 @db_provider
 def all_players(conn, req, format=None):
-    query = f'SELECT * FROM Players'
+    query = f'SELECT * FROM Players LIMIT 50'
     rows = conn.execute(query).fetchall()
     player_data = [dict((k, row[k]) for k in row.keys()) for row in rows]
     return player_data
@@ -57,7 +57,7 @@ def team_by_id(conn, req, teamID, format=None):
 @api_view(['GET'])
 @db_provider
 def game_by_id(conn, req, gameID, format=None):
-    query = f'SELECT * FROM Games WHERE gameID="{gameID}"'
+    query = f'SELECT * FROM Schedule WHERE gameID="{gameID}"'
     row = conn.execute(query).fetchone()
     game_data = dict((k, row[k]) for k in row.keys())
     return game_data
@@ -88,3 +88,21 @@ def games_by_teamID_week(conn, req, teamID, week, format=None):
     rows = conn.execute(query).fetchall()
     game_data = [dict((k, row[k]) for k in row.keys()) for row in rows]
     return game_data
+
+
+@api_view(['GET'])
+@db_provider
+def player_stats_last5(conn, req, playerID, format=None):
+    query = f'SELECT * FROM Gamelog WHERE playerID="{playerID}" ORDER BY SUBSTR(gameID, 0, 8) DESC LIMIT 5'
+    rows = conn.execute(query).fetchall()
+    last5data = [dict((k, row[k]) for k in row.keys()) for row in rows]
+    return last5data
+
+
+@api_view(['GET'])
+@db_provider
+def player_stats_season(conn, req, playerID, format=None):
+    query = f'SELECT * FROM Gamelog WHERE playerID="{playerID}" ORDER BY SUBSTR(gameID, 0, 8)'
+    rows = conn.execute(query).fetchall()
+    last5data = [dict((k, row[k]) for k in row.keys()) for row in rows]
+    return last5data

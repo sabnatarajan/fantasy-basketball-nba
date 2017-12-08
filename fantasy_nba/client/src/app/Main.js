@@ -29,6 +29,7 @@ class Main extends React.Component {
       league: null,
       team: null,
       players: null,
+      filteredPlayers: null,
       setStateCallback: this.setStateFromChild
     }
   }
@@ -42,7 +43,7 @@ class Main extends React.Component {
       <Router>
         <Switch>
           <Route exact path="/" render={(props) => (<HomeLayout {...this.state} />)} />
-          <Route path="/player/:playerID" render={(props) => (<PlayerLayout playerID={props.match.params.playerID} />)} />
+          <Route path="/player/:playerID" render={(props) => (<PlayerLayout playerID={props.match.params.playerID} {...this.state} />)} />
           <Route path="/team_builder/" render={(props) => (<TeamBuilderLayout {...this.state} />)} />
           <Route component={Err404Layout} />
         </Switch>

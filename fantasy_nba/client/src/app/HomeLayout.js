@@ -9,28 +9,27 @@ class HomeLayout extends React.Component {
     super(props, context)
   }
 
+
   render() {
+    const baseURL = process.env.NODE_ENV === "production" ? "/static" : ""
     return (
       <div>
-        <div id="title">
-          Project Name
-        </div>
+        <Container>
+          <div id="title">
+            <Header as="h1" className="white-text" textAlign="center" size="huge">Fantasy Hoops</Header>
+          </div>
 
-        <video poster="/static/poster.png" id="bgvid" playsInline muted autoPlay loop>
-          <source src="/static/video.mp4#t=8.5" type="video/mp4" />
-          <source src="/static/video.webm#t=8.5" type="video/webm" />
-        </video>
-        <div id="weights">
-          <Container>
-            <Segment inverted>
+          <div id="weights">
+            <Segment textAlign="center" basic>
               <Weights {...this.props} />
+              <Form.Button primary content={<Link style={{ color: 'white' }} to="/team_builder">Start building your team!</Link>} />
             </Segment>
-          </Container>
-          <Form.Group>
-            <Form.Input width={6} transparent disabled />
-            <Form.Button width={5} primary content={<Link style={{ color: 'white' }} to="/team_builder">Start building your team!</Link>} />
-          </Form.Group>
-        </div>
+          </div>
+        </Container>
+        <video poster={baseURL + "/poster.png"} id="bgvid" playsInline muted autoPlay loop>
+          <source src={baseURL + "/video.mp4#t=8.5"} type="video/mp4" />
+          <source src={baseURL + "/video.webm#t=8.5"} type="video/webm" />
+        </video>
       </div>
     )
   }

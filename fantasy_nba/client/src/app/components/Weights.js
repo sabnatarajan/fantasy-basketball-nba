@@ -46,11 +46,11 @@ class Weights extends React.Component {
     ]
     return (
       <Container>
-        {/* <Header icon inverted> */}
+        <Header as="h2" className="white-text" textAlign="center">Set up your league</Header>
         <Form size='small'>
           <Form.Group widths='equal'>
             <Form.Input transparent disabled />
-            <Form.Select placeholder='Select your league' options={leagueOptions} onChange={this.setLeague.bind(this)} />
+            <Form.Select label="League" inline placeholder='Select league' options={leagueOptions} onChange={this.setLeague.bind(this)} />
             <Form.Input transparent disabled />
           </Form.Group>
           <Form.Group>
@@ -58,7 +58,7 @@ class Weights extends React.Component {
             <Form.Input width={2} label='PTS' value={weights.PTS} name='PTS' onChange={this.handleChange.bind(this)} placeholder='Enter PTS wt.' type="number" />
             <Form.Input width={2} label='FGA' value={weights.FGA} name='FGA' onChange={this.handleChange.bind(this)} placeholder='Enter FGA wt.' type="number" />
             <Form.Input width={2} label='FGM' value={weights.FGM} name='FGM' onChange={this.handleChange.bind(this)} placeholder='Enter FGM wt.' type="number" />
-            <Form.Input width={2} label='3PT%' value={weights.PT3M} name='PT3M' onChange={this.handleChange.bind(this)} placeholder='Enter 3PTM wt.' type="number" />
+            <Form.Input width={2} label='3PTM' value={weights.PT3M} name='PT3M' onChange={this.handleChange.bind(this)} placeholder='Enter 3PTM wt.' type="number" />
             <Form.Input width={2} label='FTA' value={weights.FTA} name='FTA' onChange={this.handleChange.bind(this)} placeholder='Enter FTA wt.' type="number" />
             <Form.Input width={2} label='FTM' value={weights.FTM} name='FTM' onChange={this.handleChange.bind(this)} placeholder='Enter FTM wt.' type="number" />
           </Form.Group>
@@ -71,7 +71,6 @@ class Weights extends React.Component {
             <Form.Input width={2} label='TOV' value={weights.TOV} name='TOV' onChange={this.handleChange.bind(this)} placeholder='Enter TOV wt.' type="number" />
           </Form.Group>
         </Form>
-        {/* </Header> */}
       </Container>
     )
   }

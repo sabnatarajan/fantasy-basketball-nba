@@ -3,8 +3,10 @@ from django.contrib import admin
 from . import views
 
 urlpatterns = [
-    url(r'^player/(?P<playerID>[a-zA-Z0-9]+)$', view=views.player_by_id),
     url(r'^players$', view=views.all_players),
+    url(r'^player/(?P<playerID>[a-zA-Z0-9]+)$', view=views.player_by_id),
+    url(r'^player/(?P<playerID>[a-zA-Z0-9]+)/stats/season$', view=views.player_stats_season),
+    url(r'^player/(?P<playerID>[a-zA-Z0-9]+)/stats/last5$', view=views.player_stats_last5),
     url(r'^team/(?P<teamID>[a-zA-Z]+)$', view=views.team_by_id),
     url(r'^game/(?P<gameID>[A-Za-z0-9]+)$', view=views.game_by_id),
     url(r'^games/week/(?P<week>\d+)$', view=views.games_by_week),

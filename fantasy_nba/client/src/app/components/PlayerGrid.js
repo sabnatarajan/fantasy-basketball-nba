@@ -1,6 +1,6 @@
 import React, { ParamHTMLAttributes } from 'react'
 import _ from 'lodash'
-import { Button, Checkbox, Label, Popup, Table } from 'semantic-ui-react'
+import { Button, Checkbox, Icon, Label, Menu, Popup, Table } from 'semantic-ui-react'
 import { Link } from 'react-router-dom'
 
 class PlayerGrid extends React.Component {
@@ -11,38 +11,49 @@ class PlayerGrid extends React.Component {
     column: null,
     data: null,
     direction: null,
-    filterPosition: null
+    filterPosition: null,
+    page: 1,
+    entries: 10,
+    filteredData: null
+  }
+
+  filterData() {
+    // console.log(this.state.data)
+    this.setState({
+      filteredData: _.slice(this.state.data, this.state.page - 1, this.state.page + this.state.entries - 1)
+    })
   }
 
   handleSort = clickedColumn => () => {
     const { column, data, direction } = this.state
+    this.props.sortCallback(clickedColumn, direction)
 
-    if (column !== clickedColumn) {
-      this.setState({
-        column: clickedColumn,
-        data: _.sortBy(data, [clickedColumn]),
-        direction: 'ascending',
-      })
+    // if (column !== clickedColumn) {
+    //   this.setState({
+    //     column: clickedColumn,
+    //     data: _.sortBy(data, [clickedColumn]).reverse(),
+    //     direction: 'descending',
+    //   }, () => this.filterData())
 
-      return
-    }
+    //   return
+    // }
 
-    this.setState({
-      data: data.reverse(),
-      direction: direction === 'ascending' ? 'descending' : 'ascending',
-    })
+    // this.setState({
+    //   data: data.reverse(),
+    //   direction: direction === 'ascending' ? 'descending' : 'ascending',
+    // }, () => this.filterData())
   }
 
   componentWillMount() {
     this.setState({
       data: this.props.data,
-    })
+    }, () => this.filterData())
   }
 
   componentWillReceiveProps(nextProps) {
     this.setState({
       data: nextProps.data
-    })
+    }, () => this.filterData())
   }
 
   handleToggle(playerID, e, data) {
@@ -81,20 +92,8 @@ class PlayerGrid extends React.Component {
     )
   }
 
-  getDefFPts(avREBDef, avBLK, avSTL) {
-    return 0
-  }
-
-  getOffFPts(avPTS, avFTA, avFTM, avFGA, avFGM, avPT3M, avTOV, avAST, avREBOff) {
-    return 0
-  }
-
-  getProjSc() {
-    return 0
-  }
-
   render() {
-    const { column, data, direction, filterPosition } = this.state
+    const { column, data, filteredData, direction, filterPosition } = this.state
 
     if (!data || data.length == 0) { // Do not display an empty team table
       if (this.props.checked) // Only apply to the master player list, not team list
@@ -103,13 +102,14 @@ class PlayerGrid extends React.Component {
 
     return (
       <div>
-        <Table sortable celled compact size='small' textAlign='center'>
+        <Table sortable compact celled size='small' textAlign='center'>
           <Table.Header>
             <Table.Row>
               <Popup trigger={<Table.HeaderCell></Table.HeaderCell>} content='Click to select player' />
               {this.getTableRow('name', 'Name', 'Name')}
               {this.getTableRow('position', 'POS', 'Position')}
               {this.getTableRow('currTeamID', 'Team', 'Team')}
+              {this.getTableRow('zScores', 'Z-Score', 'Z-Score')}
               {this.getTableRow('cost', 'Cost ($)', 'Fantasy League Cost')}
               {this.getTableRow('avFPtsPer$', 'FPts PG/$', 'Average Fantasy Pts. per $')}
               {this.getTableRow('avDefFPtsPer$', 'Def FPts PG/$', 'Average Defensive Fantasy Pts. per $')}
@@ -126,41 +126,49 @@ class PlayerGrid extends React.Component {
               { playerID, name, position, currTeamID, costYAH, costESPN,
                 avPTS, avREBOff, avREBDef, avREBTot, avFGA, avFGM, avSTL,
                 avBLK, avAST, avTOV, avFTA, avFTM, avPT3A, avPT3M, gPlayed,
-                gamesNxtWk, avSecsPlayed, probPlay }, idx) => {
+                gamesNxtWk, avSecsPlayed, probPlay, zScores }, idx) => {
 
               const weights = this.props.weights
-              let avDefFPts = _.round(weights.REBTot * avREBDef + weights.BLK * avBLK + weights.STL * avSTL, 2)
-              let avOffFPts = _.round(
-                weights.PTS * avPTS
-                + weights.REBTot * avREBOff
-                + weights.STL * avAST
-                + weights.TOV * avTOV
-                + weights.PT3M * avPT3M
-                + weights.FTA * avFTA
-                + weights.FTM * avFTM
-                + weights.FGA * avFGA
-                + weights.FGM * avFGM, 2)
 
-              let avFPts = _.round(
+              let avDefFPts =
+                weights.REBTot * avREBDef
+                + weights.BLK * avBLK
+                + weights.STL * avSTL
+              avDefFPts = _.round(avDefFPts, 2)
+
+              let avOffFPts =
                 weights.PTS * avPTS
                 + weights.REBTot * avREBOff
-                + weights.STL * avAST
+                + weights.AST * avAST
                 + weights.TOV * avTOV
                 + weights.PT3M * avPT3M
                 + weights.FTA * avFTA
                 + weights.FTM * avFTM
                 + weights.FGA * avFGA
                 + weights.FGM * avFGM
+              avOffFPts = _.round(avOffFPts, 2)
+
+              let avFPts =
+                weights.PTS * avPTS
+                + weights.REBTot * avREBOff
                 + weights.REBTot * avREBDef
+                + weights.AST * avAST
+                + weights.TOV * avTOV
+                + weights.PT3M * avPT3M
+                + weights.FTA * avFTA
+                + weights.FTM * avFTM
+                + weights.FGA * avFGA
+                + weights.FGM * avFGM
                 + weights.BLK * avBLK
-                + weights.STL * avSTL, 2)
+                + weights.STL * avSTL
+              avFPts = _.round(avFPts, 2)
 
               let projFPts = Math.round(gamesNxtWk * probPlay * avFPts)
 
               let cost = costYAH
-              let avFPtsPer$ = cost == 0 ? "-" : _.round(avFPts / cost, 2)
-              let avDefFPtsPer$ = cost == 0 ? "-" : _.round(avDefFPts / cost, 2)
-              let avOffFPtsPer$ = cost == 0 ? "-" : _.round(avOffFPts / cost, 2)
+              let avFPtsPer$ = cost == 0 ? 0 : _.round(avFPts / cost, 2)
+              let avDefFPtsPer$ = cost == 0 ? 0 : _.round(avDefFPts / cost, 2)
+              let avOffFPtsPer$ = cost == 0 ? 0 : _.round(avOffFPts / cost, 2)
               let avMPG = Math.floor(avSecsPlayed / 60) + ":" + Math.floor(avSecsPlayed % 60)
 
               this.state.data[idx].avFPts = avFPts
@@ -178,6 +186,7 @@ class PlayerGrid extends React.Component {
                   <Table.Cell textAlign='left'><Link to={'/player/' + playerID}>{name}</Link></Table.Cell>
                   <Table.Cell>{position}</Table.Cell>
                   <Table.Cell>{currTeamID}</Table.Cell>
+                  <Table.Cell>{_.round(zScores, 2)}</Table.Cell>
                   <Table.Cell>{cost == 0 ? "Not Drafted" : cost}</Table.Cell>
                   <Table.Cell>{avFPtsPer$}</Table.Cell>
                   <Table.Cell>{avDefFPtsPer$}</Table.Cell>
@@ -192,9 +201,24 @@ class PlayerGrid extends React.Component {
             }
             )}
           </Table.Body>
+          {
+            this.props.checked ? "" : (
+              <Table.Footer>
+                <Table.Row>
+                  <Table.HeaderCell colSpan='14'>
+                    <Menu floated='right' pagination>
+                      <Menu.Item as='a'>1</Menu.Item>
+                      <Menu.Item as='a'>2</Menu.Item>
+                      <Menu.Item as='a'>3</Menu.Item>
+                      <Menu.Item as='a'>4</Menu.Item>
+                    </Menu>
+                  </Table.HeaderCell>
+                </Table.Row>
+              </Table.Footer>
+            )
+          }
         </Table>
-        {this.paginator()}
-      </div>
+      </div >
     )
   }
 

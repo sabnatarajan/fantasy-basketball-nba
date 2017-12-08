@@ -1,7 +1,7 @@
 import React from 'react'
 import _ from 'lodash'
 import Navbar from './components/Navbar'
-import { Button, Card, Header, Image, Container } from 'semantic-ui-react'
+import { Button, Card, Header, Image, Container, Segment, Table } from 'semantic-ui-react'
 import { Link } from 'react-router-dom'
 import PlayerGrid from './components/PlayerGrid'
 import axios from 'axios'
@@ -12,13 +12,15 @@ class TeamBuilderLayout extends React.Component {
     super(props, context)
 
     this.state = {
+      column: null,
+      direction: null,
       team: props.team,
       players: props.players,
       filteredPlayers: _.difference(props.players, props.team)
     }
   }
 
-  MAX_ROSTER_SIZE = 5
+  MAX_ROSTER_SIZE = 13
 
   setStateOnParent(nextState) {
     this.props.setStateCallback(nextState)
@@ -51,44 +53,14 @@ class TeamBuilderLayout extends React.Component {
   }
 
   getOnlinePlayerData() {
-    let baseURL = ""
-
+    const baseURL = process.env.NODE_ENV === "production" ? "" : "http://localhost:8000"
     axios.get(baseURL + '/api/players')
       .then(res => {
         this.setState({
           players: res.data,
           filteredPlayers: res.data
-        })
+        }, () => this.setStateOnParent(this.state))
       })
-  }
-
-  getOfflinePlayerData() {
-    let offline_players = [
-      {
-        playerID: "jamesle01", name: 'LeBron James', position: "PG", team: "CLE", starter: 1, avMPG: "38:44",
-        avDefScPG: 80, avOffScPG: 100, avCostPerDefSc: 403, avCostPerOffSc: 251, explosiveness: 90,
-        avScPG: 76, gamesNextWeek: 2, projectedSc: 82
-      },
-      {
-        playerID: "duncanti01", name: 'Tim Duncan', position: "PF", team: "SAS", starter: 1, avMPG: "38:44",
-        avDefScPG: 81, avOffScPG: 10, avCostPerDefSc: 400, avCostPerOffSc: 210, explosiveness: 90,
-        avScPG: 76, gamesNextWeek: 2, projectedSc: 82
-      },
-      {
-        playerID: "bryantko01", name: 'Kobe Bryant', position: "SG", team: "LAL", starter: 1, avMPG: "38:44",
-        avDefScPG: 82, avOffScPG: 103, avCostPerDefSc: 380, avCostPerOffSc: 214, explosiveness: 90,
-        avScPG: 76, gamesNextWeek: 2, projectedSc: 82
-      },
-      {
-        playerID: "duranke01", name: 'Kevin Durant', position: "SF", team: "CLE", starter: 1, avMPG: "38:44",
-        avDefScPG: 83, avOffScPG: 113, avCostPerDefSc: 401, avCostPerOffSc: 215, explosiveness: 90,
-        avScPG: 76, gamesNextWeek: 2, projectedSc: 82
-      },
-    ]
-    this.setState({
-      players: offline_players,
-      filteredPlayers: offline_players
-    })
   }
 
   updateTeam = (playerID, addPlayer) => {
@@ -107,12 +79,40 @@ class TeamBuilderLayout extends React.Component {
         }
         , () => this.props.setStateCallback(this.state))
     } else {
+      const { column, data, direction } = this.state
       this.setState({
         team: _.difference(this.state.team, player),
         filteredPlayers: _.union(this.state.filteredPlayers, player)
       },
         () => this.props.setStateCallback(this.state))
     }
+  }
+
+  sortPlayers = (clickedColumn) => {
+    if (!this.state) {
+      console.log('kjasdlkj state', this.state)
+      return
+    }
+    const { column, players, direction } = this.state
+    console.log('sort called on teambuilder', clickedColumn, direction)
+    // console.log(this.state.players)
+
+    console.log(_.sortBy(players, [clickedColumn]).reverse())
+
+    if (column !== clickedColumn) {
+      this.setState({
+        column: clickedColumn,
+        players: _.sortBy(players, [clickedColumn]).reverse(),
+        direction: 'descending',
+      })
+
+      return
+    }
+
+    this.setState({
+      players: players.reverse(),
+      direction: direction === 'ascending' ? 'descending' : 'ascending',
+    })
   }
 
   render() {
@@ -124,32 +124,49 @@ class TeamBuilderLayout extends React.Component {
 
     const totalProjectedPoints = _.sumBy(this.state.team, 'projFPts')
     const xFactorPlayer = _.maxBy(this.state.team, 'projFPts')
-    const MVP = _.maxBy(this.state.team, 'avFPtsPer$')
+    const ROI = _.maxBy(this.state.team, 'avFPtsPer$')
     const xDefPlayer = _.maxBy(this.state.team, 'avDefFPts')
     const xOffPlayer = _.maxBy(this.state.team, 'avOffFPts')
     const teamRatio = _.sumBy(this.state.team, 'avOffFPts') / _.sumBy(this.state.team, 'avDefFPts')
-    const teamInclination = teamRatio < 0.9 ? "defensive" : teamRatio > 1.1 ? "offensive" : "balanced"
+    const teamInclination = teamRatio < 0.5 ? "def2" : teamRatio < 0.8 ? "def1" : teamRatio > 3 ? "off2" : teamRatio > 1.2 ? "off1" : "bal"
+    const teamInclin = teamInclination + ".png"
+    const allStarPlayer = _.maxBy(this.state.team, 'zScores')
+    const totCost = _.sumBy(this.state.team, 'cost')
 
     return (
       <div>
-        <video poster="/poster.png" id="bgvid" playsInline muted autoPlay loop>
-          <source src="/video.mp4#t=8.5" type="video/mp4" />
-        </video>
         <Navbar title="Fantasy NBA" {...this.props} />
         <Container>
-          <Header as='h3'>My Team</Header>
+          <Header className="white-text" as='h3'>My Team</Header>
 
+          {/* <Segment clearing compact>
+            <table style={{float:"left", marginRight: '24px'}}>
+              <tbody>
+                <tr>
+                  <td>Total Projected Points Next Week</td>
+                  <td>{totalProjectedPoints}</td>
+                </tr>
+                <tr>
+                  <td>Next Week's All-Star</td>
+                  <td>{123}</td>
+                </tr>
+              </tbody>
+            </table>
+            <Image floated='right' src={teamInclin} height={60} />
+          </Segment> */}
           <div style={{ marginBottom: '24px' }}>
             {teamChosen ? (
               <Card.Group itemsPerRow={2}>
                 <Card>
                   <Card.Content>
-                    <Image floated='right' src="http://placehold.it/48x48" />
+                    <Image floated='right' src={teamInclin} height={60} />
                     <strong>Total Projected Points Next Week: </strong>{totalProjectedPoints}
+                    <br />
+                    <strong>Next Week's All-Star: </strong>{allStarPlayer.name}
                     <br />
                     <strong>X-Factor Player Next Week: </strong><Link to={'/player/' + xFactorPlayer.playerID}>{xFactorPlayer.name}</Link>
                     <br />
-                    <strong>Most Valuable Player: </strong><Link to={'/player/' + MVP.playerID}>{MVP.name}</Link>
+                    <strong>Highest ROI Player: </strong><Link to={'/player/' + ROI.playerID}>{ROI.name}</Link>
                     <br />
                     <strong>Strongest Defensive Player: </strong><Link to={'/player/' + xDefPlayer.playerID}>{xDefPlayer.name}</Link>
                     <br />
@@ -157,15 +174,23 @@ class TeamBuilderLayout extends React.Component {
                     <br />
                     <strong>Team Inclination: </strong>{teamInclination}
                     <br />
+                    <strong>Total Cost: </strong>{totCost}
                   </Card.Content>
                 </Card>
               </Card.Group>
             ) : ""}
           </div>
 
-          <PlayerGrid data={this.state.team} weights={this.props.weights} updateTeamCallback={this.updateTeam} checked={true} />
+          <PlayerGrid
+            data={this.state.team}
+            weights={this.props.weights}
+            {...this.props}
+            sortCallback={this.sortPlayers}
+            updateTeamCallback={this.updateTeam}
+            checked={true}
+          />
 
-          <Header as='h3'>Players</Header>
+          <Header className="white-text" as='h3'>Players</Header>
           <div style={{ marginBottom: '24px' }}>
             <b style={{ color: 'white', marginRight: '5px' }}>Player Positions</b>
             <Button.Group>
@@ -177,7 +202,14 @@ class TeamBuilderLayout extends React.Component {
               <Button toggle onClick={this.handleClick('ALL')}>All</Button>
             </Button.Group>
           </div>
-          <PlayerGrid data={this.state.filteredPlayers} weights={this.props.weights} updateTeamCallback={this.updateTeam} checked={false} paginateEntries={2} />
+          <PlayerGrid
+            data={_.difference(this.state.players, this.state.team)}
+            weights={this.props.weights}
+            {...this.props}
+            sortCallback={this.sortPlayers}
+            updateTeamCallback={this.updateTeam}
+            checked={false}
+          />
         </Container>
       </div>
     )
