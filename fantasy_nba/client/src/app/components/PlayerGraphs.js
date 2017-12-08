@@ -4,6 +4,19 @@ import { Card, Segment } from 'semantic-ui-react'
 class PlayerGraphs extends React.Component {
   constructor(props, context) {
     super(props, context)
+
+    const chartDefaults = Chart.defaults.global
+    Chart.defaults.global = {
+      ...chartDefaults,
+      legend: {
+        ...chartDefaults.legend,
+        position: 'bottom'
+      },
+      tooltips: {
+        ...chartDefaults.tooltips,
+        intersect: false
+      }
+    }
   }
 
   cat = ['pts', 'rebTot', 'ast', 'stl', 'blk', 'fgpct', 'ftpct', 'pt3pct', 'tov']
@@ -48,7 +61,7 @@ class PlayerGraphs extends React.Component {
       const dataByCat = _.map(this.fcat, (cat, j) => {
         return this.props.weights[this.weights[j]] * data[cat]
       })
-      return _.sum(dataByCat)
+      return _.round(_.sum(dataByCat), 2)
     })
 
     const fantasyDataset = [{
@@ -115,7 +128,7 @@ class PlayerGraphs extends React.Component {
     const size = seasonData.length
     const weeks = Array(size).fill(null).map((v, i) => i + 1)
     const datasets = _.map(this.cat, (cat, i) => {
-      const data = _.map(seasonData, (data) => { return data[cat] })
+      const data = _.map(seasonData, (data) => { return _.round(data[cat], 2) })
       return {
         label: cat.toUpperCase().replace("PCT", "%").replace("TOT", "").replace("PT3", "3PT"),
         data: data,

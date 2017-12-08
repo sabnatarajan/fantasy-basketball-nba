@@ -23,12 +23,13 @@ class HomeLayout extends React.Component {
         <Container>
           <div id="title">
             <Header as="h1" className="white-text" textAlign="center" size="huge">Fantasy Hoops</Header>
+            <Header.Subheader as="h2" className="white-text" size="huge">Your one-stop shop for building the ultimate NBA Fantasy team</Header.Subheader>
           </div>
 
           <div id="weights">
             <Segment textAlign="center" basic>
               <Weights {...this.props} />
-              <Link to='/team_builder'><Form.Button color="blue" content="Start building your team!"/></Link>
+              <Link to='/team_builder'><Form.Button color="blue" content="Start building your team!" /></Link>
             </Segment>
           </div>
         </Container>

@@ -82,6 +82,13 @@ html { background: url('/poster.png') #000 no-repeat center center fixed; }
   stroke: 1px rgba(27,28,29,0.7);
 }
 
+#title h2 {
+  text-align: center;
+  font-size: 2vw;
+  stroke: 1px rgba(27,28,29,0.7);
+  -webkit-text-stroke: 1px rgba(27,28,29,0.7);
+}
+
 .infoTable tr td:first-child {
   font-weight: 700;
   padding-right: 8px;

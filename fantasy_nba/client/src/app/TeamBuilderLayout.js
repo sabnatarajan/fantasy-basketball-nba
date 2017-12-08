@@ -16,7 +16,8 @@ class TeamBuilderLayout extends React.Component {
       direction: null,
       team: props.team,
       players: props.players,
-      filteredPosition: props.filteredPosition
+      filteredPosition: props.filteredPosition,
+      searchFilter: Array(0),
     }
   }
 
@@ -33,10 +34,22 @@ class TeamBuilderLayout extends React.Component {
     }
   }
 
-  filterPosition = filterPosition => () => {
+  handleFilterPosition = filterPosition => () => {
     this.setState({
       filteredPosition: filterPosition,
     }, () => this.setStateOnParent(this.state))
+  }
+
+  handeSearchFilter = (e, { value }) => {
+    this.setState({
+      searchFilter: value
+    }, () => this.setStateOnParent(this.state))
+  }
+
+  handleClearSearch = () => {
+    this.setState({
+      searchFilter: Array(0),
+    }, () => this.setStateOnParent({ searchFilter: Array(0) }))
   }
 
   getOnlinePlayerData() {
@@ -100,7 +113,6 @@ class TeamBuilderLayout extends React.Component {
           res.data[idx].projFPts = projFPts
           res.data[idx].cost = cost
         })
-        console.log(res.data)
         this.setState({
           players: _.sortBy(res.data, 'name'),
         }, () => this.setStateOnParent(this.state))
@@ -149,28 +161,33 @@ class TeamBuilderLayout extends React.Component {
   }
 
   filterPlayers() {
-    const { filteredPosition } = this.state
-    if (!filteredPosition || filteredPosition === "ALL") {
-      return _.difference(this.state.players, this.state.team)
+    const { filteredPosition, searchFilter } = this.state
+    if (searchFilter && searchFilter.length > 0) {
+      // console.log('search filter')
+      const searchedPlayers = _.filter(_.difference(this.state.players, this.state.team), (player) => { return searchFilter.indexOf(player.playerID) > -1 })
+      if (!filteredPosition || filteredPosition === "ALL") {
+        return _.intersection(_.difference(this.state.players, this.state.team), searchedPlayers)
+      }
+      return _.filter(_.filter(_.difference(this.state.players, this.state.team), (player) => { return searchFilter.indexOf(player.playerID) > -1 }), { 'position': this.state.filteredPosition })
+    } else {
+      // console.log('no search filter present')
+      if (!filteredPosition || filteredPosition === "ALL") {
+        return _.difference(this.state.players, this.state.team)
+      }
+      return _.filter(_.difference(this.state.players, this.state.team), { 'position': this.state.filteredPosition })
     }
-
-    return _.filter(_.difference(this.state.players, this.state.team), { 'position': this.state.filteredPosition })
   }
 
-  playerList = [
-    {
-      key: 'jamesle01',
-      text: 'LeBron James'
-    },
-    {
-      key: 'jamesle02',
-      text: 'Carmelo Anthony'
-    },
-    {
-      key: 'jamesle03',
-      text: 'Sabareesh'
-    },
-  ]
+  getPlayerList() {
+    const playerList = _.map(this.props.players, (player) => {
+      return {
+        key: player.playerID,
+        text: player.name,
+        value: player.playerID
+      }
+    })
+    return playerList
+  }
 
   render() {
 
@@ -205,15 +222,22 @@ class TeamBuilderLayout extends React.Component {
 
           <Header className="white-text" as='h2'>Players</Header>
           <div style={{ marginBottom: '24px' }}>
-            <b style={{ color: 'white', marginRight: '5px' }}>Filter players by position</b>
-            <Button.Group>
-              <Button toggle onClick={this.filterPosition('PG')}>PG</Button>
-              <Button toggle onClick={this.filterPosition('PF')}>PF</Button>
-              <Button toggle onClick={this.filterPosition('SG')}>SG</Button>
-              <Button toggle onClick={this.filterPosition('SF')}>SF</Button>
-              <Button toggle onClick={this.filterPosition('C')}>C</Button>
-              <Button toggle onClick={this.filterPosition('ALL')}>All</Button>
-            </Button.Group>
+            <div style={{ marginBottom: '5px' }}>
+              <b style={{ color: 'white', marginRight: '5px' }}>Search for a player</b>
+              <Dropdown placeholder='Player name' value={this.state.searchFilter} multiple selection search options={this.getPlayerList()} onChange={this.handeSearchFilter} />
+              <Button style={{ marginLeft: '5px' }} onClick={this.handleClearSearch}>Clear search</Button>
+            </div>
+            <div>
+              <b style={{ color: 'white', marginRight: '5px' }}>Filter players by position</b>
+              <Button.Group>
+                <Button toggle onClick={this.handleFilterPosition('PG')}>PG</Button>
+                <Button toggle onClick={this.handleFilterPosition('PF')}>PF</Button>
+                <Button toggle onClick={this.handleFilterPosition('SG')}>SG</Button>
+                <Button toggle onClick={this.handleFilterPosition('SF')}>SF</Button>
+                <Button toggle onClick={this.handleFilterPosition('C')}>C</Button>
+                <Button toggle onClick={this.handleFilterPosition('ALL')}>All</Button>
+              </Button.Group>
+            </div>
           </div>
           <PlayerGrid
             data={this.filterPlayers()}
@@ -315,6 +339,28 @@ const TeamHighlights = ({ teamChosen, team }) => {
       </Segment.Group>
       : ""
   )
+}
+
+class PlayerSearchBar extends React.Component {
+  constructor(props, context) {
+    super(props, context)
+
+    this.state = {
+      values: null
+    }
+  }
+
+  handleChange = (e, { value }) => {
+    console.log(value)
+    this.setState({ value: value })
+  }
+
+  render() {
+    const { value } = this.state
+    return (
+      <Dropdown placeholder='Player name' multiple selection search options={this.props.playerList} onChange={this.handleChange} />
+    )
+  }
 }
 
 export default TeamBuilderLayout

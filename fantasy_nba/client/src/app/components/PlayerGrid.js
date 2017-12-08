@@ -118,57 +118,55 @@ class PlayerGrid extends React.Component {
                 avBLK, avAST, avTOV, avFTA, avFTM, avPT3A, avPT3M, gPlayed,
                 gamesNxtWk, avSecsPlayed, probPlay, zScores }, idx) => {
 
-              // const weights = this.props.weights
+              const weights = this.props.weights
 
-              // const avDefFPtsNoPrecision =
-              //   weights.REBTot * avREBDef
-              //   + weights.BLK * avBLK
-              //   + weights.STL * avSTL
-              // const avDefFPts = _.round(avDefFPtsNoPrecision, 2)
+              avDefFPts =
+                weights.REBTot * avREBDef
+                + weights.BLK * avBLK
+                + weights.STL * avSTL
+              avDefFPts = _.round(avDefFPts, 2)
 
-              // const avOffFPtsNoPrecision =
-              //   weights.PTS * avPTS
-              //   + weights.REBTot * avREBOff
-              //   + weights.AST * avAST
-              //   + weights.TOV * avTOV
-              //   + weights.PT3M * avPT3M
-              //   + weights.FTA * avFTA
-              //   + weights.FTM * avFTM
-              //   + weights.FGA * avFGA
-              //   + weights.FGM * avFGM
-              // const avOffFPts = _.round(avOffFPtsNoPrecision, 2)
+              avOffFPts =
+                weights.PTS * avPTS
+                + weights.REBTot * avREBOff
+                + weights.AST * avAST
+                + weights.TOV * avTOV
+                + weights.PT3M * avPT3M
+                + weights.FTA * avFTA
+                + weights.FTM * avFTM
+                + weights.FGA * avFGA
+                + weights.FGM * avFGM
+              avOffFPts = _.round(avOffFPts, 2)
 
-              // const avFPtsNoPrecision =
-              //   weights.PTS * avPTS
-              //   + weights.REBTot * avREBOff
-              //   + weights.REBTot * avREBDef
-              //   + weights.AST * avAST
-              //   + weights.TOV * avTOV
-              //   + weights.PT3M * avPT3M
-              //   + weights.FTA * avFTA
-              //   + weights.FTM * avFTM
-              //   + weights.FGA * avFGA
-              //   + weights.FGM * avFGM
-              //   + weights.BLK * avBLK
-              //   + weights.STL * avSTL
-              // const avFPts = _.round(avFPtsNoPrecision, 2)
+              avFPts =
+                weights.PTS * avPTS
+                + weights.REBTot * avREBOff
+                + weights.REBTot * avREBDef
+                + weights.AST * avAST
+                + weights.TOV * avTOV
+                + weights.PT3M * avPT3M
+                + weights.FTA * avFTA
+                + weights.FTM * avFTM
+                + weights.FGA * avFGA
+                + weights.FGM * avFGM
+                + weights.BLK * avBLK
+                + weights.STL * avSTL
+              avFPts = _.round(avFPts, 2)
 
-              // const projFPts = Math.round(gamesNxtWk * probPlay * avFPts)
+              projFPts = Math.round(gamesNxtWk * probPlay * avFPts)
 
-              // const cost = this.props.league == "ESP" ? costESPN : costYAH
-              // const avFPtsPer$ = cost == 0 ? 0 : _.round(avFPts / cost, 2)
-              // const avDefFPtsPer$ = cost == 0 ? 0 : _.round(avDefFPts / cost, 2)
-              // const avOffFPtsPer$ = cost == 0 ? 0 : _.round(avOffFPts / cost, 2)
-              // const avMPG = Math.floor(avSecsPlayed / 60) + ":" + Math.floor(avSecsPlayed % 60)
+              avFPtsPer$ = cost == 0 ? 0 : _.round(avFPts / cost, 2)
+              avDefFPtsPer$ = cost == 0 ? 0 : _.round(avDefFPts / cost, 2)
+              avOffFPtsPer$ = cost == 0 ? 0 : _.round(avOffFPts / cost, 2)
 
-              // this.state.data[idx].avFPts = avFPts
-              // this.state.data[idx].avDefFPts = avDefFPts
-              // this.state.data[idx].avOffFPts = avOffFPts
-              // this.state.data[idx].avFPtsPer$ = avFPtsPer$
-              // this.state.data[idx].avDefFPtsPer$ = avDefFPtsPer$
-              // this.state.data[idx].avOffFPtsPer$ = avOffFPtsPer$
-              // this.state.data[idx].projFPts = projFPts
-              // this.state.data[idx].cost = cost
+              this.state.data[idx].avFPts = avFPts
+              this.state.data[idx].avDefFPts = avDefFPts
+              this.state.data[idx].avOffFPts = avOffFPts
+              this.state.data[idx].avFPtsPer$ = avFPtsPer$
+              this.state.data[idx].avDefFPtsPer$ = avDefFPtsPer$
+              this.state.data[idx].avOffFPtsPer$ = avOffFPtsPer$
+              this.state.data[idx].projFPts = projFPts
+              this.state.data[idx].cost = cost
 
               return (
                 <Table.Row key={name}>
