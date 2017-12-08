@@ -43,6 +43,64 @@ class TeamBuilderLayout extends React.Component {
     const baseURL = process.env.NODE_ENV === "production" ? "" : "http://localhost:8000"
     axios.get(baseURL + '/api/players')
       .then(res => {
+        const weights = this.props.weights
+
+        _.map(res.data, ({ playerID, name, position, currTeamID, costYAH, costESPN,
+          avPTS, avREBOff, avREBDef, avREBTot, avFGA, avFGM, avSTL,
+          avBLK, avAST, avTOV, avFTA, avFTM, avPT3A, avPT3M, gPlayed,
+          gamesNxtWk, avSecsPlayed, probPlay, zScores }, idx) => {
+
+          const avDefFPtsCalc =
+            weights.REBTot * avREBDef
+            + weights.BLK * avBLK
+            + weights.STL * avSTL
+          const avDefFPts = _.round(avDefFPtsCalc, 2)
+
+          const avOffFPtsCalc =
+            weights.PTS * avPTS
+            + weights.REBTot * avREBOff
+            + weights.AST * avAST
+            + weights.TOV * avTOV
+            + weights.PT3M * avPT3M
+            + weights.FTA * avFTA
+            + weights.FTM * avFTM
+            + weights.FGA * avFGA
+            + weights.FGM * avFGM
+          const avOffFPts = _.round(avOffFPtsCalc, 2)
+
+          const avFPtsCalc =
+            weights.PTS * avPTS
+            + weights.REBTot * avREBOff
+            + weights.REBTot * avREBDef
+            + weights.AST * avAST
+            + weights.TOV * avTOV
+            + weights.PT3M * avPT3M
+            + weights.FTA * avFTA
+            + weights.FTM * avFTM
+            + weights.FGA * avFGA
+            + weights.FGM * avFGM
+            + weights.BLK * avBLK
+            + weights.STL * avSTL
+          const avFPts = _.round(avFPtsCalc, 2)
+
+          const projFPts = Math.round(gamesNxtWk * probPlay * avFPts)
+
+          const cost = this.props.league == "ESP" ? costESPN : costYAH
+          const avFPtsPer$ = cost == 0 ? 0 : _.round(avFPts / cost, 2)
+          const avDefFPtsPer$ = cost == 0 ? 0 : _.round(avDefFPts / cost, 2)
+          const avOffFPtsPer$ = cost == 0 ? 0 : _.round(avOffFPts / cost, 2)
+          const avMPG = Math.floor(avSecsPlayed / 60) + ":" + Math.floor(avSecsPlayed % 60)
+
+          res.data[idx].avFPts = avFPts
+          res.data[idx].avDefFPts = avDefFPts
+          res.data[idx].avOffFPts = avOffFPts
+          res.data[idx].avFPtsPer$ = avFPtsPer$
+          res.data[idx].avDefFPtsPer$ = avDefFPtsPer$
+          res.data[idx].avOffFPtsPer$ = avOffFPtsPer$
+          res.data[idx].projFPts = projFPts
+          res.data[idx].cost = cost
+        })
+        console.log(res.data)
         this.setState({
           players: _.sortBy(res.data, 'name'),
         }, () => this.setStateOnParent(this.state))
@@ -74,11 +132,10 @@ class TeamBuilderLayout extends React.Component {
       return
     }
     const { column, players, direction } = this.state
-
     if (column !== clickedColumn) {
       this.setState({
         column: clickedColumn,
-        players: _.sortBy(players, [clickedColumn]).reverse(),
+        players: _.sortBy(players, clickedColumn).reverse(),
         direction: 'descending',
       }, () => this.setStateOnParent(this.state))
 
@@ -127,7 +184,7 @@ class TeamBuilderLayout extends React.Component {
     return (
       <div>
         <video poster={baseURL + "/poster.png"} id="bgvid" playsInline muted autoPlay loop
-          style={{filter: 'blur(15px)', WebkitFilter: 'blur(15px)'}}
+          style={{ filter: 'blur(15px)', WebkitFilter: 'blur(15px)' }}
         >
           <source src={baseURL + "/video.mp4#t=8.5"} type="video/mp4" />
           <source src={baseURL + "/video.webm#t=8.5"} type="video/webm" />
