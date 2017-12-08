@@ -6,94 +6,84 @@ import { Link } from 'react-router-dom'
 class PlayerGrid extends React.Component {
   constructor(props, context) {
     super(props, context)
-  }
-  state = {
-    column: null,
-    data: null,
-    direction: null,
-    filterPosition: null,
-    page: 1,
-    entries: 10,
-    filteredData: null
+
+    this.state = {
+      column: null,
+      data: null,
+      direction: null,
+      page: props.page
+    }
   }
 
-  filterData() {
-    // console.log(this.state.data)
-    this.setState({
-      filteredData: _.slice(this.state.data, this.state.page - 1, this.state.page + this.state.entries - 1)
-    })
+  setStateOnParent(nextState) {
+    this.props.setStateCallback(nextState)
   }
 
   handleSort = clickedColumn => () => {
     const { column, data, direction } = this.state
     this.props.sortCallback(clickedColumn, direction)
-
-    // if (column !== clickedColumn) {
-    //   this.setState({
-    //     column: clickedColumn,
-    //     data: _.sortBy(data, [clickedColumn]).reverse(),
-    //     direction: 'descending',
-    //   }, () => this.filterData())
-
-    //   return
-    // }
-
-    // this.setState({
-    //   data: data.reverse(),
-    //   direction: direction === 'ascending' ? 'descending' : 'ascending',
-    // }, () => this.filterData())
   }
 
-  componentWillMount() {
-    this.setState({
-      data: this.props.data,
-    }, () => this.filterData())
+  // You don't need this function, but keep it for now anyway -- till fully tested
+  // componentWillMount() {
+  //   this.setState({
+  //     data: this.props.data,
+  //   })
+  // }
+
+  componentDidMount() {
+    this.paginate(this.state.page, this.props.data)
+  }
+
+  componentWillUnmount() {
+    // Remember which page you were on before leaving this page
+    this.setStateOnParent({
+      page: this.state.page
+    })
   }
 
   componentWillReceiveProps(nextProps) {
-    this.setState({
-      data: nextProps.data
-    }, () => this.filterData())
+
+    // If not receiving new data (navigate back to same page), then remember the last page you were on and go back to that page
+    if (nextProps && this.props) {
+      if (this.props.filteredPosition != nextProps.filteredPosition) {
+        this.paginate(1, nextProps.data)
+        this.setState({ page: 1 })
+        return
+      }
+    }
+    this.paginate(this.state.page, nextProps.data)
   }
 
-  handleToggle(playerID, e, data) {
+  addOrRemovePlayer(playerID, e, data) {
     let addPlayer = data.checked
     this.props.updateTeamCallback(playerID, addPlayer)
   }
 
-  paginator() {
-    // TODO
-    return null
-    if (!this.state.data || this.props.checked) {
-      return null
-    }
-    let numPages = Math.max(1, Math.ceil(this.state.data.length / this.props.paginateEntries))
-    let pages = Array.from(new Array(numPages), (val, index) => index + 1)
-    return (
-      <div>
-        <Button.Group floated='right'>
-          {_.map(pages, ({ i }) => { <Button>{i}</Button> })}
-          <Button>One</Button>
-          <Button>Two</Button>
-          <Button>Three</Button>
-        </Button.Group>
-      </div>
-    )
-  }
-
   getTableRow(colID, colHeader, colTooltip) {
-    const { column, direction } = this.state
+    const { column, direction } = this.props
     return (
       <Popup trigger={
-        <Table.HeaderCell sorted={column === colID ? direction : null} onClick={this.handleSort(colID)}>
+        <Table.HeaderCell key={colID} sorted={column === colID ? direction : null} onClick={this.handleSort(colID)}>
           {colHeader}
         </Table.HeaderCell>}
         content={colTooltip} />
     )
   }
 
+  paginate = (pageNum) => {
+    if (!this.props.data) {
+      return
+    }
+    const { data, entriesPerPage } = this.props
+    this.setState({
+      page: pageNum,
+      data: this.props.data.slice((pageNum - 1) * entriesPerPage, pageNum * entriesPerPage)
+    })
+  }
+
   render() {
-    const { column, data, filteredData, direction, filterPosition } = this.state
+    const { column, data, direction } = this.state
 
     if (!data || data.length == 0) { // Do not display an empty team table
       if (this.props.checked) // Only apply to the master player list, not team list
@@ -115,7 +105,7 @@ class PlayerGrid extends React.Component {
               {this.getTableRow('avDefFPtsPer$', 'Def FPts PG/$', 'Average Defensive Fantasy Pts. per $')}
               {this.getTableRow('avOffFPtsPer$', 'Off FPts PG/$', 'Average Offensive Fantasy Pts. per $')}
               {this.getTableRow('projFPts', 'Proj FPts', 'Projected Fantasy Points for Next Week')}
-              {this.getTableRow('gNxtWk', 'Games NW', '# Games next week')}
+              {this.getTableRow('gamesNxtWk', 'Games NW', '# Games next week')}
               {this.getTableRow('avFPts', 'FPts', 'Average Fantasy Points per Game')}
               {this.getTableRow('avDefFPts', 'Def FPts', 'Average Defensive Fantasy Points per Game')}
               {this.getTableRow('avOffFPts', 'Off FPts', 'Average Offensive Fantasy Points per Game')}
@@ -165,7 +155,7 @@ class PlayerGrid extends React.Component {
 
               let projFPts = Math.round(gamesNxtWk * probPlay * avFPts)
 
-              let cost = costYAH
+              let cost = this.props.league == "ESP" ? costESPN : costYAH
               let avFPtsPer$ = cost == 0 ? 0 : _.round(avFPts / cost, 2)
               let avDefFPtsPer$ = cost == 0 ? 0 : _.round(avDefFPts / cost, 2)
               let avOffFPtsPer$ = cost == 0 ? 0 : _.round(avOffFPts / cost, 2)
@@ -181,13 +171,13 @@ class PlayerGrid extends React.Component {
               this.state.data[idx].cost = cost
 
               return (
-                <Table.Row key={playerID}>
-                  <Table.Cell><Checkbox label="" checked={this.props.checked} onChange={this.handleToggle.bind(this, playerID)} /></Table.Cell>
+                <Table.Row key={name}>
+                  <Table.Cell><Checkbox label="" checked={this.props.checked} onChange={this.addOrRemovePlayer.bind(this, playerID)} /></Table.Cell>
                   <Table.Cell textAlign='left'><Link to={'/player/' + playerID}>{name}</Link></Table.Cell>
                   <Table.Cell>{position}</Table.Cell>
                   <Table.Cell>{currTeamID}</Table.Cell>
                   <Table.Cell>{_.round(zScores, 2)}</Table.Cell>
-                  <Table.Cell>{cost == 0 ? "Not Drafted" : cost}</Table.Cell>
+                  <Table.Cell>{cost}</Table.Cell>
                   <Table.Cell>{avFPtsPer$}</Table.Cell>
                   <Table.Cell>{avDefFPtsPer$}</Table.Cell>
                   <Table.Cell>{avOffFPtsPer$}</Table.Cell>
@@ -207,10 +197,14 @@ class PlayerGrid extends React.Component {
                 <Table.Row>
                   <Table.HeaderCell colSpan='14'>
                     <Menu floated='right' pagination>
-                      <Menu.Item as='a'>1</Menu.Item>
-                      <Menu.Item as='a'>2</Menu.Item>
-                      <Menu.Item as='a'>3</Menu.Item>
-                      <Menu.Item as='a'>4</Menu.Item>
+                      {
+                        _.map(
+                          Array(Math.ceil(this.props.data.length / this.props.entriesPerPage)),
+                          (v, i) => {
+                            return <Menu.Item key={i} as='a' active={this.state.page == i + 1} onClick={this.paginate.bind(this, i + 1, this.props.data)} >{i + 1}</Menu.Item>
+                          }
+                        )
+                      }
                     </Menu>
                   </Table.HeaderCell>
                 </Table.Row>

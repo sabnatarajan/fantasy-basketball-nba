@@ -81,3 +81,13 @@ html { background: url('/poster.png') #000 no-repeat center center fixed; }
   -webkit-text-stroke: 1px rgba(27,28,29,0.7);
   stroke: 1px rgba(27,28,29,0.7);
 }
+
+.infoTable tr td:first-child {
+  font-weight: 700;
+  padding-right: 8px;
+  white-space: nowrap;
+}
+.infoTable tr td {
+  text-align: left;
+  vertical-align: top;
+}

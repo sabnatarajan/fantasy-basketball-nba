@@ -9,6 +9,11 @@ class HomeLayout extends React.Component {
     super(props, context)
   }
 
+  componentDidMount() {
+    let vid = document.getElementById('bgvid')
+    console.log(vid.currentTime)
+    vid.currentTime = 8.5
+  }
 
   render() {
     const baseURL = process.env.NODE_ENV === "production" ? "/static" : ""

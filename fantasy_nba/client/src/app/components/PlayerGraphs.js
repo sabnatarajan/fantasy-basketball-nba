@@ -35,7 +35,7 @@ class PlayerGraphs extends React.Component {
     'rgba(255,132,100,1)'
   ]
 
-  plotFantasySeries() {
+  plotFantasySeriesChart() {
     const seasonData = this.props.seasonStats
     if (!seasonData)
       return
@@ -43,24 +43,28 @@ class PlayerGraphs extends React.Component {
 
     const size = seasonData.length
     const weeks = Array(size).fill(null).map((v, i) => i + 1)
-    const fantasyData = _.map(this.fcat, (cat, i) => {
-      const data = _.map(seasonData, (data) => { return this.props.weights[this.weights[i]] * data[cat] })
-      // return this.props.weights[this.weights[i]]
-      return {
-        label: cat.toUpperCase().replace("PCT", "%").replace("TOT", "").replace("PT3", "3PT"),
-        data: data,
-        backgroundColor: this.colors[i],
-        borderColor: this.borderColors[i],
-        borderWidth: 1
-      }
+
+    const fantasyData = _.map(seasonData, (data, i) => {
+      const dataByCat = _.map(this.fcat, (cat, j) => {
+        return this.props.weights[this.weights[j]] * data[cat]
+      })
+      return _.sum(dataByCat)
     })
+
+    const fantasyDataset = [{
+      label: "Fantasy Points",
+      data: fantasyData,
+      backgroundColor: this.colors[9],
+      borderColor: this.borderColors[9],
+      borderWidth: 1
+    }]
 
     var ctx = document.getElementById("fantasySeriesChart").getContext('2d');
     var myChart = new Chart(ctx, {
       type: 'line',
       data: {
         labels: weeks,
-        datasets: fantasyData
+        datasets: fantasyDataset
       },
       options: {
         scales: {
@@ -103,7 +107,7 @@ class PlayerGraphs extends React.Component {
     });
   }
 
-  plotSeriesChart() {
+  plotCategSeriesChart() {
     const seasonData = this.props.seasonStats
     if (!seasonData)
       return
@@ -140,11 +144,16 @@ class PlayerGraphs extends React.Component {
     });
   }
 
-  componentWillReceiveProps() {
+  componentWillReceiveProps(nextProps) {
+    this.setState({
+      ...nextProps
+    }, () => this.plotAll())
+  }
+
+  plotAll() {
     this.plotPieChart()
-    this.plotSeriesChart()
-    this.plotFantasySeries()
-    this.forceUpdate()
+    this.plotCategSeriesChart()
+    this.plotFantasySeriesChart()
   }
 
   render() {

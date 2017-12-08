@@ -32,7 +32,7 @@ class Navbar extends React.Component {
 
         <Container>
           <Menu inverted secondary size='large'>
-            <Menu.Item as="h1"><Link to="">Fantasy NBA</Link></Menu.Item>
+            <Menu.Item as="h1"><Link to="">Fantasy Hoops</Link></Menu.Item>
             <Menu.Item><Link onClick={this.handleOpen} to="#">Weights</Link>
               {this.areWeightsSet() ? "" : <Label basic color='red' pointing='left'>Enter your league's weights</Label>}
             </Menu.Item>

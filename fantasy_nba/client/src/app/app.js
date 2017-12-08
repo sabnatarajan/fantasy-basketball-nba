@@ -4,7 +4,6 @@ import injectTapEventPlugin from 'react-tap-event-plugin';
 import Main from './Main'; // Our custom react component
 
 var vid = document.getElementById("bgvid");
-var pauseButton = document.querySelector("#polina button");
 
 if (window.matchMedia('(prefers-reduced-motion)').matches) {
   vid.removeAttribute("autoplay");

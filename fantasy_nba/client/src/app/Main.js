@@ -29,8 +29,10 @@ class Main extends React.Component {
       league: null,
       team: null,
       players: null,
-      filteredPlayers: null,
-      setStateCallback: this.setStateFromChild
+      setStateCallback: this.setStateFromChild,
+      filteredPosition: "ALL",
+      page: 1,
+      entriesPerPage: 30
     }
   }
 

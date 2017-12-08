@@ -50,7 +50,7 @@ class PlayerLayout extends React.Component {
   render() {
     return (
       <div>
-        <Navbar title="Fantasy NBA" {...this.props}/>
+        <Navbar {...this.props}/>
         <Container>
           <PlayerBio playerID={this.props.playerID} />
           <PlayerStats playerID={this.props.playerID} {...this.state}/>

@@ -1,7 +1,7 @@
 import React from 'react'
 import _ from 'lodash'
 import Navbar from './components/Navbar'
-import { Button, Card, Header, Image, Container, Segment, Table } from 'semantic-ui-react'
+import { Button, Card, Dropdown, Header, Image, Container, Segment, Table } from 'semantic-ui-react'
 import { Link } from 'react-router-dom'
 import PlayerGrid from './components/PlayerGrid'
 import axios from 'axios'
@@ -16,7 +16,7 @@ class TeamBuilderLayout extends React.Component {
       direction: null,
       team: props.team,
       players: props.players,
-      filteredPlayers: _.difference(props.players, props.team)
+      filteredPosition: props.filteredPosition
     }
   }
 
@@ -28,28 +28,15 @@ class TeamBuilderLayout extends React.Component {
 
   componentWillMount() {
 
-    // this.getOfflinePlayerData()
-    console.log('current state of players')
-    console.log(this.state.players)
     if (!this.state.players) {
-      console.log("Refreshing player list")
       this.getOnlinePlayerData()
     }
   }
 
-  handleClick = filterPosition => () => {
-
-    let availablePlayers = _.difference(this.state.players, this.state.team)
-    if (filterPosition === 'ALL') {
-      this.setState({
-        filteredPlayers: _.difference(this.state.players, this.state.team)
-      }, this.setStateOnParent(this.state))
-    }
-    else {
-      this.setState({
-        filteredPlayers: _.filter(availablePlayers, { 'position': filterPosition })
-      }, this.setStateOnParent(this.state))
-    }
+  filterPosition = filterPosition => () => {
+    this.setState({
+      filteredPosition: filterPosition,
+    }, () => this.setStateOnParent(this.state))
   }
 
   getOnlinePlayerData() {
@@ -57,8 +44,7 @@ class TeamBuilderLayout extends React.Component {
     axios.get(baseURL + '/api/players')
       .then(res => {
         this.setState({
-          players: res.data,
-          filteredPlayers: res.data
+          players: _.sortBy(res.data, 'name'),
         }, () => this.setStateOnParent(this.state))
       })
   }
@@ -72,39 +58,29 @@ class TeamBuilderLayout extends React.Component {
     }
     let player = _.filter(this.state.players, { 'playerID': playerID })
     if (addPlayer) {
-      this.setState(
-        {
-          team: _.union(this.state.team, player),
-          filteredPlayers: _.difference(this.state.filteredPlayers, player)
-        }
-        , () => this.props.setStateCallback(this.state))
+      this.setState({
+        team: _.union(this.state.team, player),
+      }, () => this.setStateOnParent(this.state))
     } else {
       const { column, data, direction } = this.state
       this.setState({
         team: _.difference(this.state.team, player),
-        filteredPlayers: _.union(this.state.filteredPlayers, player)
-      },
-        () => this.props.setStateCallback(this.state))
+      }, () => this.setStateOnParent(this.state))
     }
   }
 
   sortPlayers = (clickedColumn) => {
     if (!this.state) {
-      console.log('kjasdlkj state', this.state)
       return
     }
     const { column, players, direction } = this.state
-    console.log('sort called on teambuilder', clickedColumn, direction)
-    // console.log(this.state.players)
-
-    console.log(_.sortBy(players, [clickedColumn]).reverse())
 
     if (column !== clickedColumn) {
       this.setState({
         column: clickedColumn,
         players: _.sortBy(players, [clickedColumn]).reverse(),
         direction: 'descending',
-      })
+      }, () => this.setStateOnParent(this.state))
 
       return
     }
@@ -112,8 +88,32 @@ class TeamBuilderLayout extends React.Component {
     this.setState({
       players: players.reverse(),
       direction: direction === 'ascending' ? 'descending' : 'ascending',
-    })
+    }, () => this.setStateOnParent(this.state))
   }
+
+  filterPlayers() {
+    const { filteredPosition } = this.state
+    if (!filteredPosition || filteredPosition === "ALL") {
+      return _.difference(this.state.players, this.state.team)
+    }
+
+    return _.filter(_.difference(this.state.players, this.state.team), { 'position': this.state.filteredPosition })
+  }
+
+  playerList = [
+    {
+      key: 'jamesle01',
+      text: 'LeBron James'
+    },
+    {
+      key: 'jamesle02',
+      text: 'Carmelo Anthony'
+    },
+    {
+      key: 'jamesle03',
+      text: 'Sabareesh'
+    },
+  ]
 
   render() {
 
@@ -122,99 +122,134 @@ class TeamBuilderLayout extends React.Component {
       teamChosen = false
     }
 
-    const totalProjectedPoints = _.sumBy(this.state.team, 'projFPts')
-    const xFactorPlayer = _.maxBy(this.state.team, 'projFPts')
-    const ROI = _.maxBy(this.state.team, 'avFPtsPer$')
-    const xDefPlayer = _.maxBy(this.state.team, 'avDefFPts')
-    const xOffPlayer = _.maxBy(this.state.team, 'avOffFPts')
-    const teamRatio = _.sumBy(this.state.team, 'avOffFPts') / _.sumBy(this.state.team, 'avDefFPts')
-    const teamInclination = teamRatio < 0.5 ? "def2" : teamRatio < 0.8 ? "def1" : teamRatio > 3 ? "off2" : teamRatio > 1.2 ? "off1" : "bal"
-    const baseURL = process.ENV.NODE_ENV === "production" ? "/static/": ""
-    const teamInclin = baseURL + teamInclination + ".png"
-    const allStarPlayer = _.maxBy(this.state.team, 'zScores')
-    const totCost = _.sumBy(this.state.team, 'cost')
-
     return (
       <div>
-        <Navbar title="Fantasy NBA" {...this.props} />
+        <Navbar {...this.props} />
         <Container>
-          <Header className="white-text" as='h3'>My Team</Header>
-
-          {/* <Segment clearing compact>
-            <table style={{float:"left", marginRight: '24px'}}>
-              <tbody>
-                <tr>
-                  <td>Total Projected Points Next Week</td>
-                  <td>{totalProjectedPoints}</td>
-                </tr>
-                <tr>
-                  <td>Next Week's All-Star</td>
-                  <td>{123}</td>
-                </tr>
-              </tbody>
-            </table>
-            <Image floated='right' src={teamInclin} height={60} />
-          </Segment> */}
-          <div style={{ marginBottom: '24px' }}>
-            {teamChosen ? (
-              <Card.Group itemsPerRow={2}>
-                <Card>
-                  <Card.Content>
-                    <Image floated='right' src={teamInclin} height={60} />
-                    <strong>Total Projected Points Next Week: </strong>{totalProjectedPoints}
-                    <br />
-                    <strong>Next Week's All-Star: </strong>{allStarPlayer.name}
-                    <br />
-                    <strong>X-Factor Player Next Week: </strong><Link to={'/player/' + xFactorPlayer.playerID}>{xFactorPlayer.name}</Link>
-                    <br />
-                    <strong>Highest ROI Player: </strong><Link to={'/player/' + ROI.playerID}>{ROI.name}</Link>
-                    <br />
-                    <strong>Strongest Defensive Player: </strong><Link to={'/player/' + xDefPlayer.playerID}>{xDefPlayer.name}</Link>
-                    <br />
-                    <strong>Strongest Offensive Player: </strong><Link to={'/player/' + xOffPlayer.playerID}>{xOffPlayer.name}</Link>
-                    <br />
-                    <strong>Team Inclination: </strong>{teamInclination}
-                    <br />
-                    <strong>Total Cost: </strong>{totCost}
-                  </Card.Content>
-                </Card>
-              </Card.Group>
-            ) : ""}
-          </div>
-
+          <Header className="white-text" as='h2'>My Team</Header>
+          <TeamHighlights teamChosen={teamChosen} team={this.state.team} />
           <PlayerGrid
             data={this.state.team}
             weights={this.props.weights}
             {...this.props}
             sortCallback={this.sortPlayers}
             updateTeamCallback={this.updateTeam}
+            paginateCallback={this.paginate}
             checked={true}
           />
 
-          <Header className="white-text" as='h3'>Players</Header>
+          <Header className="white-text" as='h2'>Players</Header>
           <div style={{ marginBottom: '24px' }}>
-            <b style={{ color: 'white', marginRight: '5px' }}>Player Positions</b>
+            <b style={{ color: 'white', marginRight: '5px' }}>Filter players by position</b>
             <Button.Group>
-              <Button toggle onClick={this.handleClick('PG')}>PG</Button>
-              <Button toggle onClick={this.handleClick('PF')}>PF</Button>
-              <Button toggle onClick={this.handleClick('SG')}>SG</Button>
-              <Button toggle onClick={this.handleClick('SF')}>SF</Button>
-              <Button toggle onClick={this.handleClick('C')}>C</Button>
-              <Button toggle onClick={this.handleClick('ALL')}>All</Button>
+              <Button toggle onClick={this.filterPosition('PG')}>PG</Button>
+              <Button toggle onClick={this.filterPosition('PF')}>PF</Button>
+              <Button toggle onClick={this.filterPosition('SG')}>SG</Button>
+              <Button toggle onClick={this.filterPosition('SF')}>SF</Button>
+              <Button toggle onClick={this.filterPosition('C')}>C</Button>
+              <Button toggle onClick={this.filterPosition('ALL')}>All</Button>
             </Button.Group>
           </div>
           <PlayerGrid
-            data={_.difference(this.state.players, this.state.team)}
+            data={this.filterPlayers()}
             weights={this.props.weights}
             {...this.props}
             sortCallback={this.sortPlayers}
             updateTeamCallback={this.updateTeam}
+            paginateCallback={this.paginate}
             checked={false}
           />
         </Container>
       </div>
     )
   }
+}
+
+const TeamHighlights = ({ teamChosen, team }) => {
+  const baseURL = process.env.NODE_ENV === "production" ? "/static/" : ""
+  const totalProjectedPoints = _.sumBy(team, 'projFPts')
+  const xFactorPlayer = _.maxBy(team, 'projFPts')
+  const ROIPlayer = _.maxBy(team, 'avFPtsPer$')
+  const xDefPlayer = _.maxBy(team, 'avDefFPts')
+  const xOffPlayer = _.maxBy(team, 'avOffFPts')
+  const teamRatio = _.sumBy(team, 'avOffFPts') / _.sumBy(team, 'avDefFPts')
+  const teamInclination = teamRatio < 0.5 ? "def2" : teamRatio < 0.8 ? "def1" : teamRatio > 3 ? "off2" : teamRatio > 1.2 ? "off1" : "bal"
+  const teamInclinImage = baseURL + teamInclination + ".png"
+  const teamInclinLabel = {
+    'def2': "Defensive",
+    'def1': "Slightly Defensive",
+    'bal': "Balanced",
+    'off1': "Slightly offensive",
+    'off2': "Offensive"
+  }
+  const allStarPlayer = _.maxBy(team, 'zScores')
+  const totCost = _.sumBy(team, 'cost')
+
+  return (
+    teamChosen ?
+      <Segment.Group horizontal>
+        <Segment clearing compact>
+
+          <table className="infoTable" style={{ float: "left", marginRight: '24px' }}>
+            <tbody>
+              <tr>
+                <td>Total Projected Points Next Week</td>
+                <td>{totalProjectedPoints}</td>
+              </tr>
+              <tr>
+                <td>Next Week's All-Star</td>
+                <td>{<Link to={'/player/' + allStarPlayer.playerID}>{allStarPlayer.name}</Link>}</td>
+              </tr>
+              <tr>
+                <td>X-Factor Player Next Week</td>
+                <td><Link to={'/player/' + xFactorPlayer.playerID}>{xFactorPlayer.name}</Link></td>
+              </tr>
+              <tr>
+                <td>Highest ROI Player</td>
+                <td><Link to={'/player/' + ROIPlayer.playerID}>{ROIPlayer.name}</Link></td>
+              </tr>
+              <tr>
+                <td>Strongest Defensive Player</td>
+                <td><Link to={'/player/' + xDefPlayer.playerID}>{xDefPlayer.name}</Link></td>
+              </tr>
+              <tr>
+                <td>Strongest Offensive Player</td>
+                <td><Link to={'/player/' + xOffPlayer.playerID}>{xOffPlayer.name}</Link></td>
+              </tr>
+              <tr>
+                <td>Team Inclination</td>
+                <td>{teamInclinLabel[teamInclination]}<Image floated='right' src={teamInclinImage} height={20} /></td>
+              </tr>
+              <tr>
+                <td>Total Cost</td>
+                <td>{_.round(totCost, )}</td>
+              </tr>
+            </tbody>
+          </table>
+        </Segment>
+        <Segment basic compact>
+          <Link to={'/player/' + allStarPlayer.playerID}><Image centered={true} src={allStarPlayer.imageURL} height={140} /></Link>
+          <Header textAlign="center">All-Star</Header>
+        </Segment>
+        <Segment basic compact>
+          <Link to={'/player/' + xFactorPlayer.playerID}><Image centered={true} src={xFactorPlayer.imageURL} height={140} /></Link>
+          <Header textAlign="center">X-Factor</Header>
+        </Segment>
+        <Segment basic compact>
+          <Link to={'/player/' + ROIPlayer.playerID}><Image centered={true} src={ROIPlayer.imageURL} height={140} /></Link>
+          <Header textAlign="center">ROI</Header>
+        </Segment>
+        <Segment basic compact>
+          <Link to={'/player/' + xDefPlayer.playerID}><Image centered={true} src={xDefPlayer.imageURL} height={140} /></Link>
+          <Header textAlign="center">Defense</Header>
+        </Segment>
+        <Segment basic compact>
+          <Link to={'/player/' + xOffPlayer.playerID}><Image centered={true} src={xOffPlayer.imageURL} height={140} /></Link>
+          <Header textAlign="center">Offense</Header>
+        </Segment>
+      </Segment.Group>
+      : ""
+  )
 }
 
 export default TeamBuilderLayout
