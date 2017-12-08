@@ -39,7 +39,7 @@ def player_by_id(conn, req, playerID, format=None):
 @api_view(['GET'])
 @db_provider
 def all_players(conn, req, format=None):
-    query = f'SELECT * FROM Players LIMIT 50'
+    query = f'SELECT * FROM Players LIMIT'
     rows = conn.execute(query).fetchall()
     player_data = [dict((k, row[k]) for k in row.keys()) for row in rows]
     return player_data
