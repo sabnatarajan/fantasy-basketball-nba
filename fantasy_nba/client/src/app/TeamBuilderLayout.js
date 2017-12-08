@@ -122,8 +122,16 @@ class TeamBuilderLayout extends React.Component {
       teamChosen = false
     }
 
+    const baseURL = process.env.NODE_ENV === "production" ? "/static" : ""
+
     return (
       <div>
+        <video poster={baseURL + "/poster.png"} id="bgvid" playsInline muted autoPlay loop
+          style={{filter: 'blur(15px)', WebkitFilter: 'blur(15px)'}}
+        >
+          <source src={baseURL + "/video.mp4#t=8.5"} type="video/mp4" />
+          <source src={baseURL + "/video.webm#t=8.5"} type="video/webm" />
+        </video>
         <Navbar {...this.props} />
         <Container>
           <Header className="white-text" as='h2'>My Team</Header>

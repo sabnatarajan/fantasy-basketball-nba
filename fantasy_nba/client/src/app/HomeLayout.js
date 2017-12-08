@@ -27,7 +27,7 @@ class HomeLayout extends React.Component {
           <div id="weights">
             <Segment textAlign="center" basic>
               <Weights {...this.props} />
-              <Form.Button primary content={<Link style={{ color: 'white' }} to="/team_builder">Start building your team!</Link>} />
+              <Link to='/team_builder'><Form.Button color="blue" content="Start building your team!"/></Link>
             </Segment>
           </div>
         </Container>
