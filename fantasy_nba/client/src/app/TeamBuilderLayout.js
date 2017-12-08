@@ -129,7 +129,8 @@ class TeamBuilderLayout extends React.Component {
     const xOffPlayer = _.maxBy(this.state.team, 'avOffFPts')
     const teamRatio = _.sumBy(this.state.team, 'avOffFPts') / _.sumBy(this.state.team, 'avDefFPts')
     const teamInclination = teamRatio < 0.5 ? "def2" : teamRatio < 0.8 ? "def1" : teamRatio > 3 ? "off2" : teamRatio > 1.2 ? "off1" : "bal"
-    const teamInclin = teamInclination + ".png"
+    const baseURL = process.ENV.NODE_ENV === "production" ? "/static/": ""
+    const teamInclin = baseURL + teamInclination + ".png"
     const allStarPlayer = _.maxBy(this.state.team, 'zScores')
     const totCost = _.sumBy(this.state.team, 'cost')
 
