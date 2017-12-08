@@ -12,17 +12,11 @@ class PlayerStats extends React.Component {
     }
   }
 
-  componentWillMount() {
-    
-  }
-
-  
-
   render() {
     const { seasonStats, last5Stats } = this.props
     return (
       <Segment>
-        <Header color="black" textAlign="center" as="h3">Player Stats</Header>
+        <Header color="black" textAlign="center" as="h3">Player Stats (Avg.)</Header>
         <Table definition striped celled compact>
           <Table.Header>
             <Table.Row>

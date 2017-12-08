@@ -13,6 +13,7 @@ class HomeLayout extends React.Component {
     let vid = document.getElementById('bgvid')
     console.log(vid.currentTime)
     vid.currentTime = 8.5
+    console.log(vid.currentTime)
   }
 
   render() {
@@ -32,8 +33,8 @@ class HomeLayout extends React.Component {
           </div>
         </Container>
         <video poster={baseURL + "/poster.png"} id="bgvid" playsInline muted autoPlay loop>
-          <source src={baseURL + "/video.mp4#t=8.5"} type="video/mp4" />
-          <source src={baseURL + "/video.webm#t=8.5"} type="video/webm" />
+          <source src={baseURL + "/video.mp4"} type="video/mp4" />
+          <source src={baseURL + "/video.webm"} type="video/webm" />
         </video>
       </div>
     )

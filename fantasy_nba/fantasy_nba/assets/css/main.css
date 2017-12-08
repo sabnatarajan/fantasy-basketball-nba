@@ -1,0 +1,93 @@
+body {
+  background-color: #263238;
+}
+
+label {
+  color: white !important;
+}
+
+.white-text {
+  color: white !important;
+}
+
+nav {
+  background-color: #5d4037;
+}
+
+@media screen and (min-width: 480px) {
+  nav .brand-logo {
+    padding: 0px 10px;
+  }
+}
+
+nav .input-field {
+  width: 300px;
+}
+
+nav .input-field label {
+  top: -10px;
+}
+
+.collapsible-body {
+  padding: 10px 0px;
+}
+
+.table {
+  font-size: 0.7em;
+}
+
+video { 
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  min-width: 100%;
+  min-height: 100%;
+  width: auto;
+  height: auto;
+  z-index: -100;
+  transform: translateX(-50%) translateY(-50%);
+  background: url('/poster.png') no-repeat;
+  background-size: cover;
+  transition: 1s opacity;
+}
+
+@media screen and (max-width: 500px) { 
+div{width:70%;} 
+}
+@media screen and (max-device-width: 800px) {
+html { background: url('/poster.png') #000 no-repeat center center fixed; }
+#bgvid { display: none; }
+}
+
+#weights {
+  /* -webkit-text-stroke: 1pt rgba(27, 28, 29, 0.7) */
+  /* position: absolute; */
+  /* top: 18px; */
+  /* left: 15%; */
+  /* width: 70%; */
+  /* margin: 18px auto; */
+}
+
+/* .ui.inverted.segment {
+  background: rgba(27, 28, 29, 0.7);
+} */
+
+#title {
+  margin: 5% auto;
+}
+
+#title h1 {
+  font-size: 8vw;
+  -webkit-text-stroke: 1px rgba(27,28,29,0.7);
+  stroke: 1px rgba(27,28,29,0.7);
+}
+
+.infoTable tr td:first-child {
+  font-weight: 700;
+  padding-right: 8px;
+  white-space: nowrap;
+}
+.infoTable tr td {
+  text-align: left;
+  vertical-align: top;
+}
