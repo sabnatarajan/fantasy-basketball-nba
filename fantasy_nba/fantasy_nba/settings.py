@@ -25,7 +25,7 @@ SECRET_KEY = 'rfma9gl!ms^6xra%3jfe7n^#rx=5#%43wq2z0-4yxetes)_v$r'
 DEBUG = True
 
 ALLOWED_HOSTS = [
-    "*.herokuapp.com",
+    "fantasy-hoops.herokuapp.com",
     "localhost"
 ]
 
