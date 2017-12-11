@@ -3,9 +3,7 @@ import { BrowserRouter as Router, Link, Route, Switch } from 'react-router-dom'
 import HomeLayout from './HomeLayout'
 import PlayerLayout from './PlayerLayout'
 import Err404Layout from './Err404Layout'
-import PlayerCompareLayout from './PlayerCompareLayout';
 import TeamBuilderLayout from './TeamBuilderLayout'
-import WeightsLayout from './WeightsLayout'
 import axios from 'axios'
 
 class Main extends React.Component {

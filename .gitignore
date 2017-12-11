@@ -108,5 +108,5 @@ webpack*.js
 
 # Project-specific
 data/
-
+.vscode
 launch.json

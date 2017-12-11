@@ -32,6 +32,7 @@ class Weights extends React.Component {
   }
 
   setLeague(e, { value }) {
+    console.log(value)
     this.setState({
       league: value
     }, () => this.props.setStateCallback(this.state))
@@ -50,7 +51,7 @@ class Weights extends React.Component {
         <Form size='small'>
           <Form.Group widths='equal'>
             <Form.Input transparent disabled />
-            <Form.Select label="League" inline placeholder='Select league' options={leagueOptions} onChange={this.setLeague.bind(this)} />
+            <Form.Select label="League" inline placeholder='Select league' value={this.props.league} options={leagueOptions} onChange={this.setLeague.bind(this)} />
             <Form.Input transparent disabled />
           </Form.Group>
           <Form.Group>

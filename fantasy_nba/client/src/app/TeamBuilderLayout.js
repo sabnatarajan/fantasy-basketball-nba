@@ -1,7 +1,7 @@
 import React from 'react'
 import _ from 'lodash'
 import Navbar from './components/Navbar'
-import { Button, Card, Dropdown, Header, Image, Container, Segment, Table } from 'semantic-ui-react'
+import { Button, Card, Dropdown, Header, Image, Popup, Container, Segment, Table } from 'semantic-ui-react'
 import { Link } from 'react-router-dom'
 import PlayerGrid from './components/PlayerGrid'
 import axios from 'axios'
@@ -257,6 +257,7 @@ class TeamBuilderLayout extends React.Component {
 const TeamHighlights = ({ teamChosen, team }) => {
   const baseURL = process.env.NODE_ENV === "production" ? "/static/" : ""
   const totalProjectedPoints = _.sumBy(team, 'projFPts')
+  const allStarPlayer = _.maxBy(team, 'zScores')
   const xFactorPlayer = _.maxBy(team, 'projFPts')
   const ROIPlayer = _.maxBy(team, 'avFPtsPer$')
   const xDefPlayer = _.maxBy(team, 'avDefFPts')
@@ -271,7 +272,6 @@ const TeamHighlights = ({ teamChosen, team }) => {
     'off1': "Slightly offensive",
     'off2': "Offensive"
   }
-  const allStarPlayer = _.maxBy(team, 'zScores')
   const totCost = _.sumBy(team, 'cost')
 
   return (
@@ -317,23 +317,48 @@ const TeamHighlights = ({ teamChosen, team }) => {
           </table>
         </Segment>
         <Segment basic compact>
-          <Link to={'/player/' + allStarPlayer.playerID}><Image centered={true} src={allStarPlayer.imageURL} height={140} /></Link>
+          <Popup
+            trigger={
+              <Link to={'/player/' + allStarPlayer.playerID}><Image centered={true} src={allStarPlayer.imageURL} height={140} /></Link>
+            }
+            content="Is the best player on your team (farthest from average)"
+          />
           <Header textAlign="center">All-Star</Header>
         </Segment>
         <Segment basic compact>
-          <Link to={'/player/' + xFactorPlayer.playerID}><Image centered={true} src={xFactorPlayer.imageURL} height={140} /></Link>
+          <Popup
+            trigger={
+              <Link to={'/player/' + xFactorPlayer.playerID}><Image centered={true} src={xFactorPlayer.imageURL} height={140} /></Link>
+            }
+            content="Has the highest projected fantasy points for next week"
+          />
           <Header textAlign="center">X-Factor</Header>
         </Segment>
         <Segment basic compact>
-          <Link to={'/player/' + ROIPlayer.playerID}><Image centered={true} src={ROIPlayer.imageURL} height={140} /></Link>
+          <Popup
+            trigger={
+              <Link to={'/player/' + ROIPlayer.playerID}><Image centered={true} src={ROIPlayer.imageURL} height={140} /></Link>
+            }
+            content="Has the highest fantasy points per $"
+          />
           <Header textAlign="center">ROI</Header>
         </Segment>
         <Segment basic compact>
-          <Link to={'/player/' + xDefPlayer.playerID}><Image centered={true} src={xDefPlayer.imageURL} height={140} /></Link>
+          <Popup
+            trigger={
+              <Link to={'/player/' + xDefPlayer.playerID}><Image centered={true} src={xDefPlayer.imageURL} height={140} /></Link>
+            }
+            content="Scores the most number of defensive fantasy points"
+          />
           <Header textAlign="center">Defense</Header>
         </Segment>
         <Segment basic compact>
-          <Link to={'/player/' + xOffPlayer.playerID}><Image centered={true} src={xOffPlayer.imageURL} height={140} /></Link>
+          <Popup
+            trigger={
+              <Link to={'/player/' + xOffPlayer.playerID}><Image centered={true} src={xOffPlayer.imageURL} height={140} /></Link>
+            }
+            content="Scores the most number of offensive fantasy points"
+          />
           <Header textAlign="center">Offense</Header>
         </Segment>
       </Segment.Group>

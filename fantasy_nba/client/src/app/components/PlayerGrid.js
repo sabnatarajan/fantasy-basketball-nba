@@ -155,6 +155,8 @@ class PlayerGrid extends React.Component {
 
               projFPts = Math.round(gamesNxtWk * probPlay * avFPts)
 
+              cost = this.props.league === "ESP" ? costESPN: costYAH
+
               avFPtsPer$ = cost == 0 ? 0 : _.round(avFPts / cost, 2)
               avDefFPtsPer$ = cost == 0 ? 0 : _.round(avDefFPts / cost, 2)
               avOffFPtsPer$ = cost == 0 ? 0 : _.round(avOffFPts / cost, 2)
