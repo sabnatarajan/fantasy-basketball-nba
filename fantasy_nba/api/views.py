@@ -2,6 +2,7 @@ from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
+from rest_framework import status
 import sqlite3
 
 from fantasy_nba.settings import DATABASES
@@ -22,6 +23,8 @@ def db_provider(func):
         conn = sqlite3.connect(DATABASES['default']['NAME'])
         conn.row_factory = sqlite3.Row
         func_ret = func(conn, *args, **kwargs)
+        if not func_ret:
+            return Response({"error": "not found"}, status=status.HTTP_404_NOT_FOUND)
         conn.close()
         return Response(func_ret)
     return func_wrapper
@@ -32,6 +35,8 @@ def db_provider(func):
 def player_by_id(conn, req, playerID, format=None):
     query = f'SELECT * FROM Players WHERE playerID="{playerID}"'
     row = conn.execute(query).fetchone()
+    if not row:
+        return None
     player_data = dict((k, row[k]) for k in row.keys())
     return player_data
 
