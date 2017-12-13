@@ -98,3 +98,10 @@ html { background: url('/poster.png') #000 no-repeat center center fixed; }
   text-align: left;
   vertical-align: top;
 }
+
+.attribution {
+  color: grey;
+  bottom: 0;
+  right: 0;
+  z-index: -1;
+}
