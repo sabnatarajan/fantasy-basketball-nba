@@ -80,6 +80,11 @@ class PlayerGraphs extends React.Component {
         datasets: fantasyDataset
       },
       options: {
+        elements: {
+          line: {
+            cubicInterpolationMode: 'monotone'
+          }
+        },
         scales: {
           yAxes: [{
             ticks: {
@@ -134,11 +139,11 @@ class PlayerGraphs extends React.Component {
         data: data,
         backgroundColor: this.colors[i],
         borderColor: this.borderColors[i],
-        borderWidth: 1
+        borderWidth: 1,
       }
     })
 
-    var ctx = document.getElementById("seriesChart").getContext('2d');
+    var ctx = document.getElementById("categSeriesChart").getContext('2d');
     var myChart = new Chart(ctx, {
       type: 'line',
       data: {
@@ -146,6 +151,11 @@ class PlayerGraphs extends React.Component {
         datasets: datasets
       },
       options: {
+        elements: {
+          line: {
+            cubicInterpolationMode: 'monotone'
+          }
+        },
         scales: {
           yAxes: [{
             ticks: {
@@ -175,17 +185,20 @@ class PlayerGraphs extends React.Component {
         <Card.Group itemsPerRow={2}>
           <Card>
             <Card.Content>
+              <Card.Header textAlign="center">Fantasy points contribution by Category</Card.Header>
               <canvas id="pieChart" width="50" height="50"></canvas>
             </Card.Content>
           </Card>
           <Card>
             <Card.Content>
-              <canvas id="seriesChart" width="50" height="50"></canvas>
+              <Card.Header textAlign="center">Key stats per game (current season)</Card.Header>
+              <canvas id="categSeriesChart" width="50" height="50"></canvas>
             </Card.Content>
           </Card>
         </Card.Group>
         <Card fluid>
           <Card.Content>
+            <Card.Header textAlign="center">Fantasy Value contributed per game</Card.Header>
             <canvas id="fantasySeriesChart"></canvas>
           </Card.Content>
         </Card>
