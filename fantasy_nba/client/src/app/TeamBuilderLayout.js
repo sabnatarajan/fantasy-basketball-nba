@@ -209,7 +209,7 @@ class TeamBuilderLayout extends React.Component {
         <Navbar {...this.props} />
         <Container>
           <Header className="white-text" as='h2'>My Team</Header>
-          <TeamHighlights teamChosen={teamChosen} team={this.state.team} />
+          <TeamHighlights teamChosen={teamChosen} team={this.state.team} league={this.props.league} />
           <PlayerGrid
             data={this.state.team}
             weights={this.props.weights}
@@ -254,116 +254,124 @@ class TeamBuilderLayout extends React.Component {
   }
 }
 
-const TeamHighlights = ({ teamChosen, team }) => {
-  const baseURL = process.env.NODE_ENV === "production" ? "/static/" : ""
-  const totalProjectedPoints = _.sumBy(team, 'projFPts')
-  const allStarPlayer = _.maxBy(team, 'zScores')
-  const xFactorPlayer = _.maxBy(team, 'projFPts')
-  const ROIPlayer = _.maxBy(team, 'avFPtsPer$')
-  const xDefPlayer = _.maxBy(team, 'avDefFPts')
-  const xOffPlayer = _.maxBy(team, 'avOffFPts')
-  const teamRatio = _.sumBy(team, 'avOffFPts') / _.sumBy(team, 'avDefFPts')
-  const teamInclination = teamRatio < 0.5 ? "def2" : teamRatio < 0.8 ? "def1" : teamRatio > 3 ? "off2" : teamRatio > 1.2 ? "off1" : "bal"
-  const teamInclinImage = baseURL + teamInclination + ".png"
-  const teamInclinLabel = {
-    'def2': "Defensive",
-    'def1': "Slightly Defensive",
-    'bal': "Balanced",
-    'off1': "Slightly offensive",
-    'off2': "Offensive"
+class TeamHighlights extends React.Component {
+  constructor(props, context) {
+    super(props, context)
   }
-  const totCost = _.sumBy(team, 'cost')
 
-  return (
-    teamChosen ?
-      <Segment.Group horizontal>
-        <Segment clearing compact>
+  render() {
+    const { teamChosen, team, league } = this.props
+    const baseURL = process.env.NODE_ENV === "production" ? "/static/" : ""
+    const totalProjectedPoints = _.sumBy(team, 'projFPts')
+    const allStarPlayer = _.maxBy(team, 'zScores')
+    const xFactorPlayer = _.maxBy(team, 'projFPts')
+    const ROIPlayer = _.maxBy(team, 'avFPtsPer$')
+    const xDefPlayer = _.maxBy(team, 'avDefFPts')
+    const xOffPlayer = _.maxBy(team, 'avOffFPts')
+    const teamRatio = _.sumBy(team, 'avOffFPts') / _.sumBy(team, 'avDefFPts')
+    const teamInclination = teamRatio < 0.5 ? "def2" : teamRatio < 0.8 ? "def1" : teamRatio > 3 ? "off2" : teamRatio > 1.2 ? "off1" : "bal"
+    const teamInclinImage = baseURL + teamInclination + ".png"
+    const teamInclinLabel = {
+      'def2': "Defensive",
+      'def1': "Slightly Defensive",
+      'bal': "Balanced",
+      'off1': "Slightly offensive",
+      'off2': "Offensive"
+    }
+    console.log('league: ', league)
+    const totCost = _.sumBy(team, league === "ESP" ? 'costESPN' : 'costYAH')
 
-          <table className="infoTable" style={{ float: "left", marginRight: '24px' }}>
-            <tbody>
-              <tr>
-                <td>Total Projected Points Next Week</td>
-                <td>{totalProjectedPoints}</td>
-              </tr>
-              <tr>
-                <td>Next Week's All-Star</td>
-                <td>{<Link to={'/player/' + allStarPlayer.playerID}>{allStarPlayer.name}</Link>}</td>
-              </tr>
-              <tr>
-                <td>X-Factor Player Next Week</td>
-                <td><Link to={'/player/' + xFactorPlayer.playerID}>{xFactorPlayer.name}</Link></td>
-              </tr>
-              <tr>
-                <td>Highest ROI Player</td>
-                <td><Link to={'/player/' + ROIPlayer.playerID}>{ROIPlayer.name}</Link></td>
-              </tr>
-              <tr>
-                <td>Strongest Defensive Player</td>
-                <td><Link to={'/player/' + xDefPlayer.playerID}>{xDefPlayer.name}</Link></td>
-              </tr>
-              <tr>
-                <td>Strongest Offensive Player</td>
-                <td><Link to={'/player/' + xOffPlayer.playerID}>{xOffPlayer.name}</Link></td>
-              </tr>
-              <tr>
-                <td>Team Inclination</td>
-                <td>{teamInclinLabel[teamInclination]}<Image floated='right' src={teamInclinImage} height={20} /></td>
-              </tr>
-              <tr>
-                <td>Total Cost</td>
-                <td>{_.round(totCost, )}</td>
-              </tr>
-            </tbody>
-          </table>
-        </Segment>
-        <Segment basic compact>
-          <Popup
-            trigger={
-              <Link to={'/player/' + allStarPlayer.playerID}><Image centered={true} src={allStarPlayer.imageURL} height={140} /></Link>
-            }
-            content="Is the best player on your team (farthest from average)"
-          />
-          <Header textAlign="center">All-Star</Header>
-        </Segment>
-        <Segment basic compact>
-          <Popup
-            trigger={
-              <Link to={'/player/' + xFactorPlayer.playerID}><Image centered={true} src={xFactorPlayer.imageURL} height={140} /></Link>
-            }
-            content="Has the highest projected fantasy points for next week"
-          />
-          <Header textAlign="center">X-Factor</Header>
-        </Segment>
-        <Segment basic compact>
-          <Popup
-            trigger={
-              <Link to={'/player/' + ROIPlayer.playerID}><Image centered={true} src={ROIPlayer.imageURL} height={140} /></Link>
-            }
-            content="Has the highest fantasy points per $"
-          />
-          <Header textAlign="center">ROI</Header>
-        </Segment>
-        <Segment basic compact>
-          <Popup
-            trigger={
-              <Link to={'/player/' + xDefPlayer.playerID}><Image centered={true} src={xDefPlayer.imageURL} height={140} /></Link>
-            }
-            content="Scores the most number of defensive fantasy points"
-          />
-          <Header textAlign="center">Defense</Header>
-        </Segment>
-        <Segment basic compact>
-          <Popup
-            trigger={
-              <Link to={'/player/' + xOffPlayer.playerID}><Image centered={true} src={xOffPlayer.imageURL} height={140} /></Link>
-            }
-            content="Scores the most number of offensive fantasy points"
-          />
-          <Header textAlign="center">Offense</Header>
-        </Segment>
-      </Segment.Group>
-      : ""
-  )
+    return (
+      teamChosen ?
+        <Segment.Group horizontal>
+          <Segment clearing compact>
+
+            <table className="infoTable" style={{ float: "left", marginRight: '24px' }}>
+              <tbody>
+                <tr>
+                  <td>Total Projected Points Next Week</td>
+                  <td>{totalProjectedPoints}</td>
+                </tr>
+                <tr>
+                  <td>Next Week's All-Star</td>
+                  <td>{<Link to={'/player/' + allStarPlayer.playerID}>{allStarPlayer.name}</Link>}</td>
+                </tr>
+                <tr>
+                  <td>X-Factor Player Next Week</td>
+                  <td><Link to={'/player/' + xFactorPlayer.playerID}>{xFactorPlayer.name}</Link></td>
+                </tr>
+                <tr>
+                  <td>Highest ROI Player</td>
+                  <td><Link to={'/player/' + ROIPlayer.playerID}>{ROIPlayer.name}</Link></td>
+                </tr>
+                <tr>
+                  <td>Strongest Defensive Player</td>
+                  <td><Link to={'/player/' + xDefPlayer.playerID}>{xDefPlayer.name}</Link></td>
+                </tr>
+                <tr>
+                  <td>Strongest Offensive Player</td>
+                  <td><Link to={'/player/' + xOffPlayer.playerID}>{xOffPlayer.name}</Link></td>
+                </tr>
+                <tr>
+                  <td>Team Inclination</td>
+                  <td>{teamInclinLabel[teamInclination]}<Image floated='right' src={teamInclinImage} height={20} /></td>
+                </tr>
+                <tr>
+                  <td>Total Cost</td>
+                  <td>{_.round(totCost, )}</td>
+                </tr>
+              </tbody>
+            </table>
+          </Segment>
+          <Segment basic compact>
+            <Popup
+              trigger={
+                <Link to={'/player/' + allStarPlayer.playerID}><Image centered={true} src={allStarPlayer.imageURL} height={140} /></Link>
+              }
+              content="Is the best player on your team (farthest from average)"
+            />
+            <Header textAlign="center">All-Star</Header>
+          </Segment>
+          <Segment basic compact>
+            <Popup
+              trigger={
+                <Link to={'/player/' + xFactorPlayer.playerID}><Image centered={true} src={xFactorPlayer.imageURL} height={140} /></Link>
+              }
+              content="Has the highest projected fantasy points for next week"
+            />
+            <Header textAlign="center">X-Factor</Header>
+          </Segment>
+          <Segment basic compact>
+            <Popup
+              trigger={
+                <Link to={'/player/' + ROIPlayer.playerID}><Image centered={true} src={ROIPlayer.imageURL} height={140} /></Link>
+              }
+              content="Has the highest fantasy points per $"
+            />
+            <Header textAlign="center">ROI</Header>
+          </Segment>
+          <Segment basic compact>
+            <Popup
+              trigger={
+                <Link to={'/player/' + xDefPlayer.playerID}><Image centered={true} src={xDefPlayer.imageURL} height={140} /></Link>
+              }
+              content="Scores the most number of defensive fantasy points"
+            />
+            <Header textAlign="center">Defense</Header>
+          </Segment>
+          <Segment basic compact>
+            <Popup
+              trigger={
+                <Link to={'/player/' + xOffPlayer.playerID}><Image centered={true} src={xOffPlayer.imageURL} height={140} /></Link>
+              }
+              content="Scores the most number of offensive fantasy points"
+            />
+            <Header textAlign="center">Offense</Header>
+          </Segment>
+        </Segment.Group>
+        : ""
+    )
+  }
 }
 
 class PlayerSearchBar extends React.Component {
@@ -376,7 +384,6 @@ class PlayerSearchBar extends React.Component {
   }
 
   handleChange = (e, { value }) => {
-    console.log(value)
     this.setState({ value: value })
   }
 
