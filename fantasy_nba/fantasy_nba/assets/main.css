@@ -101,7 +101,7 @@ html { background: url('/poster.png') #000 no-repeat center center fixed; }
 
 .attribution {
   color: grey;
-  position: absolute;
+  position: fixed;
   bottom: 0;
   right: 0;
   z-index: -1;
